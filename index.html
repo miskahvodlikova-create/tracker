@@ -329,15 +329,17 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
 @media (min-width:1080px){
   .desk-only{display:revert!important}.mob-only{display:none!important}
   .wrap{max-width:none;padding-left:28px;padding-right:28px;padding-bottom:60px}
-  .tabs{grid-template-columns:repeat(5,1fr);max-width:950px}
+  .tabs{grid-template-columns:repeat(4,1fr);max-width:760px}
   #calsides{display:none}
-  body:not(.v-home):not(.v-workout) .top .strip-wrap,body:not(.v-home):not(.v-workout) #stats{display:none}
+  .dgrid{display:grid;grid-template-columns:minmax(250px,310px) minmax(0,1fr) minmax(270px,330px);gap:22px;align-items:start}
+  .dgrid>aside.dcol{display:grid!important;gap:14px;align-content:start;min-width:0}
+  #view{min-width:0}
   .grid3{display:grid;grid-template-columns:minmax(260px,330px) minmax(0,1fr) minmax(290px,360px);gap:22px;align-items:start}
-  .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
-  .gridT{display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:22px;align-items:start}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:22px;align-items:start}
+  .gridT{display:grid;gap:22px;align-items:start}
   .stickycol{position:sticky;top:16px}
-  body.v-workout #view,body.v-skills #view,body.v-newyear #view{max-width:900px;margin-inline:auto}
 }
+@media (min-width:1700px){.gridT{grid-template-columns:minmax(260px,320px) minmax(0,1fr)}}
 .mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
 .mhead span{font-size:12px;font-weight:800;color:var(--muted)}
 .mday{border:2px solid transparent;background:var(--sunk);border-radius:10px;padding:4px 0 3px;min-width:0;display:grid;gap:2px;justify-items:center;font-size:14px}
@@ -380,17 +382,16 @@ i.due{background:var(--pink)}
     </div>
   </header>
   <nav class="tabs" role="tablist" id="tabs">
-    <button class="tab desk-only" role="tab" data-v="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></button>
     <button class="tab" role="tab" data-v="workout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20M5 8v8M8 6v12M16 6v12M19 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Workout</span></button>
-    <button class="tab desk-only" role="tab" data-v="training"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20M5 8v8M8 6v12M16 6v12M19 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Training</span></button>
-    <button class="tab desk-only" role="tab" data-v="hf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Health &amp; Food</span></button>
+    <button class="tab desk-only" role="tab" data-v="hf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Health</span></button>
     <button class="tab mob-only" role="tab" data-v="plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h1M4 12h1M4 18h1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></button>
+    <button class="tab desk-only" role="tab" data-v="training"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20M5 8v8M8 6v12M16 6v12M19 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></button>
     <button class="tab" role="tab" data-v="skills"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Skills</span></button>
     <button class="tab mob-only" role="tab" data-v="health"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Health</span></button>
     <button class="tab mob-only" role="tab" data-v="food"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 3c-2 2-2 6 0 8v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Food</span></button>
     <button class="tab mob-only" role="tab" data-v="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM4 11h16M8 4v4M16 4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Calendar</span></button>
   </nav>
-  <main id="view"></main>
+  <div class="dgrid"><aside id="col-left" class="desk-only dcol stickycol"></aside><main id="view"></main><aside id="col-month" class="desk-only dcol stickycol"></aside></div>
 </div>
 <div class="timer" id="timer" hidden>
   <div class="bar" id="tbar"></div>
@@ -1144,11 +1145,10 @@ function bindSides(root){
   const dt=q('#tdone');if(dt)dt.ontoggle=()=>{TODOSHOW=dt.open};
 }
 function renderSides(focusTodo){
-  const L=document.getElementById('col-todo'),R=document.getElementById('col-month');
-  if(L){L.innerHTML=todoHTML();bindSides(L)}
-  if(R){R.innerHTML=monthHTML()+remindersHTML();bindSides(R)}
+  const L=document.getElementById('col-left'),R=document.getElementById('col-month');
+  if(isDesk()){L.innerHTML=remindersHTML()+todoHTML();bindSides(L);R.innerHTML=monthHTML();bindSides(R)}
   const inCal=$('#calsides');if(inCal){inCal.innerHTML=todoHTML()+monthHTML()+remindersHTML();bindSides(inCal)}
-  if(focusTodo){const i=document.querySelector(isDesk()?'#col-todo #tin':'#calsides #tin');if(i)i.focus()}
+  if(focusTodo){const i=document.querySelector(isDesk()?'#col-left #tin':'#calsides #tin');if(i)i.focus()}
 }
 
 let CALWK=null,PERIODS_CACHE=[];
@@ -1248,14 +1248,13 @@ function burst(){
 }
 
 /* ====== routing ====== */
-function renderHome(){$('#view').innerHTML='<div class="grid3"><div class="col stickycol" id="col-todo"></div><div class="col" id="col-calendar"></div><div class="col stickycol" id="col-month"></div></div>';renderCalendar();renderSides()}
 function renderTraining(){$('#view').innerHTML='<div class="gridT"><div class="col stickycol" id="col-badges"></div><div class="col" id="col-plan"></div></div>';renderPlan()}
 function renderHF(){$('#view').innerHTML='<div class="grid2"><div class="col" id="col-health"></div><div class="col" id="col-food"></div></div>';renderHealth();renderFood()}
-const DESK_ONLY={home:1,training:1,hf:1},MOB_ONLY={plan:'training',health:'hf',food:'hf',calendar:'home'};
-const VIEWS={home:renderHome,training:renderTraining,hf:renderHF,workout:renderWorkout,plan:renderPlan,skills:renderSkills,health:renderHealth,food:renderFood,calendar:renderCalendar,newyear:renderNewYear};
+const DESK_ONLY={training:1,hf:1},MOB_ONLY={plan:'training',health:'hf',food:'hf',calendar:'workout'};
+const VIEWS={training:renderTraining,hf:renderHF,workout:renderWorkout,plan:renderPlan,skills:renderSkills,health:renderHealth,food:renderFood,calendar:renderCalendar,newyear:renderNewYear};
 function setView(v){
-  if(!VIEWS[v])v=isDesk()?'home':'workout';
-  if(isDesk()&&MOB_ONLY[v])v=MOB_ONLY[v];if(!isDesk()&&DESK_ONLY[v])v=v==='home'?'calendar':v==='hf'?'health':'plan';
+  if(!VIEWS[v])v='workout';
+  if(isDesk()&&MOB_ONLY[v])v=MOB_ONLY[v];if(!isDesk()&&DESK_ONLY[v])v=v==='hf'?'health':'plan';
   VIEW=v;cancelAnimationFrame(nyAnim);
   document.body.className=document.body.className.replace(/\bv-\S+/g,'').trim()+' v-'+v;
   const tabv=v;
@@ -1264,14 +1263,14 @@ function setView(v){
   renderHeader();VIEWS[v]();
   if(location.hash!=='#'+v)try{history.replaceState(null,'','#'+v)}catch(e){location.hash=v}
 }
-function renderAll(){SEL=null;setView(VIEW);if(VIEW==='calendar')renderSides()}
+function renderAll(){SEL=null;setView(VIEW);renderSides()}
 $('#strip').onclick=e=>{const c=e.target.closest('[data-go]');if(c){SEL=c.dataset.go;S.ui.sel=SEL;save();setView('workout')}};
 $('#tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)setView(b.dataset.v)};
 window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(v&&v!==VIEW)setView(v)});
-let start=(location.hash||(isDesk()?'#home':'#workout')).slice(1);
-DESKMQ.addEventListener('change',()=>setView(VIEW));
+let start=(location.hash||'#workout').slice(1);
+DESKMQ.addEventListener('change',()=>{setView(VIEW);renderSides()});
 if(TODAY>='2027-01-01'&&!S.ui.nySeen){S.ui.nySeen=true;save();start='newyear'}
-setView(start);if(!isDesk())renderSides();
+setView(start);renderSides();
 window.__export={sessions:SESSIONS.map(x=>({date:x.date,time:x.time,name:META[x.tpl].name+(META[x.tpl].run&&x.key!=='0lowerA'?' + walk-run':''),optional:!!x.optional,week:x.week?x.week.n:null,deload:!!(x.week&&x.week.deload)})),reminders:REMINDERS};
 /* ====== GitHub sync (public build only) ======
    Data lives in a private repo the user owns (default miskahvodlikova-create/tracker-data, file data.json).
