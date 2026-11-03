@@ -1164,32 +1164,48 @@ const enc=s=>{const b=new TextEncoder().encode(s);let x='';for(let i=0;i<b.lengt
 const dec=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0)));
 const hhmm=()=>new Date().toTimeString().slice(0,5);
 function setStatus(t){status=t;const el=document.getElementById('syncst');if(el)el.textContent=t}
-async function pull(){
-  if(!cfg.token)return;
-  try{
-    const r=await api('?t='+Date.now());
-    if(r.status===404){sha=null;await push(true);return}
-    if(!r.ok)throw new Error(r.status===401?'key not accepted':'GitHub error '+r.status);
-    const j=await r.json();sha=j.sha;
-    const remote=JSON.parse(dec(j.content));
-    if(remote&&remote.sessions&&(remote._ts||0)>(S._ts||0)){S=remote;migrate();_save();renderAll();setStatus('Synced '+hhmm())}
-    else if((S._ts||0)>(remote._ts||0))await push(true);
-    else setStatus('Synced '+hhmm());
-  }catch(e){setStatus('Sync problem: '+e.message)}
-}
-async function push(now){
+const BK='tracker-sync-base-v1';
+const DICTS=['sessions','food','acc','daily','skills','steps'];
+const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+function pick(b,l,r,hasBase){if(eq(l,r))return l;if(!hasBase){if(r===undefined)return l;if(l===undefined)return r;return JSON.stringify(l).length>=JSON.stringify(r).length?l:r}if(eq(l,b))return r;if(eq(r,b))return l;return l}
+function mergeDict(b,l,r,hasBase){b=b||{};l=l||{};r=r||{};const o={};new Set([...Object.keys(l),...Object.keys(r)]).forEach(k=>{const v=pick(b[k],l[k],r[k],hasBase);if(v!==undefined)o[k]=v});return o}
+function merge3(base,L,R){
+  if(!R)return L;const hasBase=!!base;base=base||{};const o={};
+  new Set([...Object.keys(L),...Object.keys(R)]).forEach(k=>{
+    if(k==='_ts')return;
+    if(k==='ui'){o.ui=L.ui||R.ui||{};return}
+    if(DICTS.includes(k)){o[k]=mergeDict(base[k],L[k],R[k],hasBase);return}
+    if(k==='cycle'){o.cycle=Object.assign({},R.cycle||{},L.cycle||{},{days:mergeDict((base.cycle||{}).days,(L.cycle||{}).days,(R.cycle||{}).days,hasBase)});return}
+    const v=pick(base[k],L[k],R[k],hasBase);if(v!==undefined)o[k]=v});
+  o._ts=Math.max(L._ts||0,R._ts||0);return o}
+const strip=x=>{const c=JSON.parse(JSON.stringify(x));delete c.ui;delete c._ts;return c};
+function loadBase(){try{return JSON.parse(localStorage.getItem(BK))}catch(e){return null}}
+function saveBase(x){try{localStorage.setItem(BK,JSON.stringify(strip(x)))}catch(e){}}
+async function sync(){
   if(!cfg.token)return;
   if(busy){again=true;return}
   busy=true;
   try{
-    const body={message:'sync '+new Date().toISOString(),content:enc(JSON.stringify(S))};if(sha)body.sha=sha;
-    let r=await api('',{method:'PUT',body:JSON.stringify(body)});
-    if(r.status===409||r.status===422){busy=false;await pull();return}
-    if(!r.ok)throw new Error(r.status===401?'key not accepted':r.status===404?'repo not found':'GitHub error '+r.status);
-    sha=(await r.json()).content.sha;setStatus('Synced '+hhmm());
+    for(let tries=0;tries<3;tries++){
+      const r=await api('?t='+Date.now());let remote=null;sha=null;
+      if(r.ok){const j=await r.json();sha=j.sha;remote=JSON.parse(dec(j.content))}
+      else if(r.status!==404)throw new Error(r.status===401?'key not accepted':'GitHub error '+r.status);
+      const merged=merge3(loadBase(),S,remote);
+      if(!remote||!eq(strip(merged),strip(remote))){
+        const body={message:'sync '+new Date().toISOString(),content:enc(JSON.stringify(merged))};if(sha)body.sha=sha;
+        const p=await api('',{method:'PUT',body:JSON.stringify(body)});
+        if(p.status===409||p.status===422)continue;
+        if(!p.ok)throw new Error(p.status===401?'key not accepted':p.status===404?'repo not found':'GitHub error '+p.status);
+      }
+      const changed=!eq(strip(merged),strip(S));
+      saveBase(merged);
+      if(changed){merged.ui=S.ui;S=merged;migrate();_save();renderAll()}
+      setStatus('Synced '+hhmm());break;
+    }
   }catch(e){setStatus('Sync problem: '+e.message)}
-  busy=false;if(again){again=false;push()}
+  busy=false;if(again){again=false;sync()}
 }
+const pull=sync,push=sync;
 const _save=save;
 save=function(){S._ts=Date.now();_save();if(cfg.token){setStatus('Saving…');clearTimeout(timer);timer=setTimeout(push,1500)}};
 window.syncUI=function(){
