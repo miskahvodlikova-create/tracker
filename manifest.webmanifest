@@ -1,14 +1,27 @@
 {
-  "name": "Michaelka's Training Block",
-  "short_name": "Training",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#EA5E86",
-  "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
-  ]
+ "name": "Michaelka's Training Block",
+ "short_name": "Training",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#FCF4F0",
+ "theme_color": "#FCF4F0",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
 }
