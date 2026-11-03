@@ -1251,6 +1251,7 @@ window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(v&&v
 let start=(location.hash||'#workout').slice(1);
 if(TODAY>='2027-01-01'&&!S.ui.nySeen){S.ui.nySeen=true;save();start='newyear'}
 setView(start);renderSides();
+window.__export={sessions:SESSIONS.map(x=>({date:x.date,time:x.time,name:META[x.tpl].name+(META[x.tpl].run&&x.key!=='0lowerA'?' + walk-run':''),optional:!!x.optional,week:x.week?x.week.n:null,deload:!!(x.week&&x.week.deload)})),reminders:REMINDERS};
 /* ====== GitHub sync (public build only) ======
    Data lives in a private repo the user owns (default miskahvodlikova-create/tracker-data, file data.json).
    Token + repo are stored in this browser only (never in backups). Last write wins, by S._ts. */
@@ -1307,7 +1308,18 @@ async function sync(){
   }catch(e){setStatus('Sync problem: '+e.message)}
   busy=false;if(again){again=false;sync()}
 }
-const pull=sync,push=sync;
+async function loadCal(){
+  if(!cfg.token)return;
+  try{
+    const r=await fetch('https://api.github.com/repos/'+cfg.repo+'/contents/calendar.json?t='+Date.now(),{cache:'no-store',headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'}});
+    if(!r.ok)return;
+    const j=JSON.parse(dec((await r.json()).content));
+    if(!j||!Array.isArray(j.events)||!j.events.length)return;
+    if(!eq(S.cal,j.events)){S.cal=j.events;CAL_EVENTS=j.events;applyCalTimes();_save();renderAll();timer=setTimeout(push,800)}
+  }catch(e){}
+}
+async function syncAll(){await sync();await loadCal()}
+const pull=syncAll,push=sync;
 const _save=save;
 save=function(){S._ts=Date.now();_save();if(cfg.token){setStatus('Saving…');clearTimeout(timer);timer=setTimeout(push,1500)}};
 window.syncUI=function(){
