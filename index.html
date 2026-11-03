@@ -904,15 +904,16 @@ function checkinHTML(){
     (()=>{const bn=bandNight(CKDATE);return bn?'<div class="band"><span class="eyebrow">Last night · Mi band</span><div class="bandrow"><div><b class="mono">'+bn.bed+'</b><span>fell asleep</span></div><div><b class="mono">'+bn.wake+'</b><span>woke up</span></div><div><b class="mono">'+(m=>Math.floor(m/60)+'h '+pad(m%60)+'m')(sleepMin(bn.bed,bn.wake))+'</b><span>asleep</span></div></div></div>':'<div class="band"><span class="eyebrow">Last night · Mi band</span><div class="small">No band data for this night yet. New sleep data comes over with a backup from the Claude version.</div></div>'})()+
     '<div class="addform" style="grid-template-columns:minmax(0,180px)"><label>Weight (kg)<input id="dkg" class="inp" inputmode="decimal" placeholder="65.0" value="'+(w?w.kg:'')+'"></label></div>'+
     '<div class="stack" style="gap:6px"><b>How well did you sleep?</b><div class="seg" id="dq">'+QUAL.map(q=>'<button type="button" data-q="'+q[0]+'" aria-pressed="'+(QSEL===q[0])+'"><b>'+q[0]+'</b><span>'+q[1]+'</span></button>').join('')+'</div></div>'+
-    '<div class="row"><button class="btn primary" id="dsave">Save check-in</button><span class="small muted" id="dmsg"></span></div>'+
+    '<div class="small muted" id="dmsg">Saves automatically.</div>'+
     '</section>';
 }
 function bindCheckin(){
   $('#dd').onchange=e=>{if(e.target.value){CKDATE=e.target.value;renderHealth()}};
-  $('#dq').onclick=e=>{const b=e.target.closest('button');if(!b)return;QSEL=QSEL===b.dataset.q?null:b.dataset.q;$('#dq').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.q===QSEL))};
-  $('#dsave').onclick=()=>{const d=CKDATE,x=S.daily[d]=S.daily[d]||{};x.quality=QSEL!=null?+QSEL:null;
-    const kg=parseFloat(String($('#dkg').value).replace(',','.'));S.weights=S.weights.filter(v=>v.date!==d);if(!isNaN(kg))S.weights.push({date:d,kg});
-    save();renderHealth();renderHeader();const msg=$('#dmsg');if(msg)msg.textContent='Saved for '+fmt(d)+'.'};
+  const ck=()=>{const d=CKDATE,x=S.daily[d]=S.daily[d]||{};x.quality=QSEL!=null?+QSEL:null;
+    const kg=parseFloat(String($('#dkg').value).replace(',','.'));S.weights=S.weights.filter(v=>v.date!==d);if(!isNaN(kg)&&kg>20)S.weights.push({date:d,kg});
+    save();const msg=$('#dmsg');if(msg)msg.textContent='✓ Saved for '+fmt(d)+'.'};
+  $('#dq').onclick=e=>{const b=e.target.closest('button');if(!b)return;QSEL=QSEL===b.dataset.q?null:b.dataset.q;$('#dq').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.q===QSEL));ck()};
+  $('#dkg').oninput=ck;$('#dkg').onchange=()=>{ck();renderHeader()};
 }
 function accStreak(){let n=0,d=TODAY;const A=S.acc||{};if(!(A[d]&&A[d].am&&A[d].pm))d=addDays(d,-1);while(A[d]&&A[d].am&&A[d].pm){n++;d=addDays(d,-1)}return n}
 function accHTML(date,compact){
