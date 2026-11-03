@@ -1088,7 +1088,7 @@ function dayEvents(date){
 }
 /* ====== school reminders (added by Claude when Michaelka sends them) ====== */
 const REMINDERS=[
- ['2026-11-04','Prezentácia','Anglický jazyk']
+ ['2026-11-11','Prezentácia','Anglický jazyk']
 ];
 function remindersHTML(){
   const list=REMINDERS.filter(r=>r[0]>=addDays(TODAY,-1)).sort((a,b)=>a[0]<b[0]?-1:1);
