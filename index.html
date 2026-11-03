@@ -338,6 +338,15 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
 .mdots{display:flex;gap:2px;height:6px}.mdots i,.mlegend2 i{width:6px;height:6px;border-radius:50%;display:inline-block}
 i.workout{background:var(--twilight)}i.workout.done{background:var(--pink)}i.class{background:var(--tang)}i.work{background:var(--ink)}i.holiday{background:var(--tomato)}i.cycle{background:var(--lav);box-shadow:inset 0 0 0 1px var(--pink)}
 .mlegend2{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}.mlegend2 i{margin-right:4px}
+.side .card+.card{margin-top:14px}
+i.due{background:var(--pink)}
+.ev.due{background:var(--lav)}
+.rem{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:var(--surface)}
+.rem.soon{border-color:var(--pink);background:color-mix(in srgb,var(--lav) 45%,var(--surface))}
+.rdate{display:grid;justify-items:center;line-height:1;min-width:38px;padding:6px 4px;border-radius:10px;background:var(--tang);color:#22383A}
+.rdate b{font-family:var(--f-display);font-size:20px}.rdate span{font-size:11px;font-weight:800;text-transform:uppercase}
+.rbody{display:grid;gap:2px;min-width:0}.rbody span{font-size:13px;color:var(--muted)}
+.rwhen{font-size:12px;font-weight:800;color:var(--muted)}.rem.soon .rwhen{color:var(--pink)}
 .trow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
 .todos{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .todo{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 8px;border-radius:12px;background:var(--sunk)}
@@ -1073,8 +1082,20 @@ function dayEvents(date){
   const hol=CAL_EVENTS.find(e=>e[0]===date&&e[3]==='holiday');
   if(hol)evs.unshift({t:'all day',n:hol[2],k:'holiday'});else if(HOLIDAYS[date])evs.unshift({t:'all day',n:HOLIDAYS[date],k:'holiday'});
   predictedPeriods(date,date).forEach(p=>{if(date>=p[0]&&date<=p[1])evs.push({t:'',n:p[2],k:'cycle'})});
+  REMINDERS.filter(r=>r[0]===date).forEach(r=>evs.unshift({t:'due',n:r[1]+(r[2]?' · '+r[2]:''),k:'due'}));
   if(d>=4&&!s)evs.push({t:'all day',n:'No gym · 7,000+ steps',k:'off'});
   return evs;
+}
+/* ====== school reminders (added by Claude when Michaelka sends them) ====== */
+const REMINDERS=[
+ ['2026-11-04','Prezentácia','Anglický jazyk']
+];
+function remindersHTML(){
+  const list=REMINDERS.filter(r=>r[0]>=addDays(TODAY,-1)).sort((a,b)=>a[0]<b[0]?-1:1);
+  const box=r=>{const n=dayDiff(TODAY,r[0]),dd=new Date(r[0]+'T00:00:00Z'),when=n<0?'yesterday':n===0?'today':n===1?'tomorrow':'in '+n+' days';
+    return '<div class="rem'+(n<=1?' soon':'')+'"><div class="rdate"><b>'+dd.getUTCDate()+'</b><span>'+MONTHS[dd.getUTCMonth()].slice(0,3)+'</span></div><div class="rbody"><b>'+esc(r[1])+'</b><span>'+esc(r[2]||'')+'</span></div><span class="rwhen">'+when+'</span></div>'};
+  return '<section class="card stack side-rem"><div class="spread"><h3>School</h3><span class="small muted">'+list.length+' coming up</span></div>'+
+    (list.length?list.map(box).join(''):'<div class="small muted">Nothing due. Send Claude a new one, like "4.11. prezentácia".</div>')+'</section>';
 }
 /* ====== side panels: month calendar (left) + to-do (right) ====== */
 let MCAL=null,MSEL=TODAY,TODOSHOW=false;
@@ -1084,12 +1105,12 @@ function monthHTML(){
   const [y,m]=MCAL.split('-').map(Number),first=MCAL+'-01',off=(new Date(first+'T00:00:00Z').getUTCDay()+6)%7,days=new Date(Date.UTC(y,m,0)).getUTCDate();
   let g='';for(let i=0;i<off;i++)g+='<span></span>';
   for(let i=1;i<=days;i++){const d=MCAL+'-'+String(i).padStart(2,'0'),evs=dayEvents(d),s=sessByDate[d];
-    const dots=[s?(isComplete(s)?'workout done':'workout'):'',evs.some(e=>e.k==='class')?'class':'',evs.some(e=>e.k==='work')?'work':'',evs.some(e=>e.k==='holiday')?'holiday':'',evs.some(e=>e.k==='cycle')?'cycle':''].filter(Boolean);
+    const dots=[s?(isComplete(s)?'workout done':'workout'):'',evs.some(e=>e.k==='class')?'class':'',evs.some(e=>e.k==='work')?'work':'',evs.some(e=>e.k==='holiday')?'holiday':'',evs.some(e=>e.k==='cycle')?'cycle':'',evs.some(e=>e.k==='due')?'due':''].filter(Boolean);
     g+='<button type="button" class="mday'+(d===TODAY?' today':'')+(d===MSEL?' sel':'')+'" data-md="'+d+'"><b>'+i+'</b><span class="mdots">'+dots.map(x=>'<i class="'+x+'"></i>').join('')+'</span></button>'}
   const evs=dayEvents(MSEL).filter(e=>e.k!=='off');
   return '<section class="card stack side-cal"><div class="spread"><button class="btn sm ghost" id="mprev" aria-label="Previous month">‹</button><h3>'+MONTHS[m-1]+' '+y+'</h3><button class="btn sm ghost" id="mnext" aria-label="Next month">›</button></div>'+
     '<div class="mgrid mhead">'+['Mo','Tu','We','Th','Fr','Sa','Su'].map(x=>'<span>'+x+'</span>').join('')+'</div><div class="mgrid">'+g+'</div>'+
-    '<div class="mlegend2"><span><i class="workout"></i>gym</span><span><i class="class"></i>school</span><span><i class="work"></i>work</span><span><i class="cycle"></i>period</span></div>'+
+    '<div class="mlegend2"><span><i class="workout"></i>gym</span><span><i class="class"></i>school</span><span><i class="work"></i>work</span><span><i class="cycle"></i>period</span><span><i class="due"></i>due</span></div>'+
     '<div class="stack" style="gap:6px"><b>'+fmt(MSEL)+'</b>'+(evs.length?evs.map(e=>(e.go?'<button class="ev workout" data-go="'+e.go+'">':'<div class="ev '+e.k+'">')+'<span class="t">'+e.t+'</span><span>'+esc(e.n)+'</span>'+(e.go?'</button>':'</div>')).join(''):'<div class="small muted">Nothing planned.</div>')+'</div></section>';
 }
 function todoHTML(){
@@ -1112,9 +1133,9 @@ function bindSides(root){
 }
 function renderSides(focusTodo){
   const L=$('#sideL'),R=$('#sideR');
-  if(L){L.innerHTML=monthHTML();bindSides(L)}
+  if(L){L.innerHTML=monthHTML()+remindersHTML();bindSides(L)}
   if(R){R.innerHTML=todoHTML();bindSides(R)}
-  const inCal=$('#calsides');if(inCal){inCal.innerHTML=todoHTML()+monthHTML();bindSides(inCal)}
+  const inCal=$('#calsides');if(inCal){inCal.innerHTML=todoHTML()+monthHTML()+remindersHTML();bindSides(inCal)}
   if(focusTodo){const i=document.querySelector(window.innerWidth>=1280?'#sideR #tin':'#calsides #tin');if(i)i.focus()}
 }
 
