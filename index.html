@@ -322,10 +322,33 @@ button,input,label,.chk{touch-action:manipulation}
   .field input{padding:9px 2px}
 }
 canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;height:100%}
+.side{display:none}
+#calsides{display:grid;gap:14px}
+@media (min-width:1280px){
+  body{display:grid;grid-template-columns:minmax(280px,1fr) minmax(0,720px) minmax(280px,1fr);align-items:start;column-gap:24px}
+  .wrap{margin:0;width:100%}
+  .side{display:block;position:sticky;top:20px;padding-block:20px;max-height:100vh;overflow:auto}
+  #sideL{padding-left:24px;justify-self:end;width:min(100%,360px)}#sideR{padding-right:24px;justify-self:start;width:min(100%,360px)}
+  #calsides{display:none}
+}
+.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.mhead span{font-size:12px;font-weight:800;color:var(--muted)}
+.mday{border:2px solid transparent;background:var(--sunk);border-radius:10px;padding:4px 0 3px;min-width:0;display:grid;gap:2px;justify-items:center;font-size:14px}
+.mday.today{border-color:var(--pink)}.mday.sel{background:var(--lav);border-color:var(--ink)}
+.mdots{display:flex;gap:2px;height:6px}.mdots i,.mlegend2 i{width:6px;height:6px;border-radius:50%;display:inline-block}
+i.workout{background:var(--twilight)}i.workout.done{background:var(--pink)}i.class{background:var(--tang)}i.work{background:var(--ink)}i.holiday{background:var(--tomato)}i.cycle{background:var(--lav);box-shadow:inset 0 0 0 1px var(--pink)}
+.mlegend2{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}.mlegend2 i{margin-right:4px}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.todos{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.todo{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 8px;border-radius:12px;background:var(--sunk)}
+.todo .tick{width:32px;height:30px;font-size:15px}.todo .tick.on{background:var(--mint);color:var(--ink);border-color:var(--mint)}
+.todo span{overflow-wrap:anywhere}.todo.done span{text-decoration:line-through;color:var(--muted)}
+.tdel{border:0;background:none;color:var(--muted);font-size:20px;padding:0 4px;line-height:1}
 @media (prefers-reduced-motion: reduce){.plate{animation:none}.progress>i{transition:none}}
 </style>
 
 <canvas id="fx" hidden></canvas>
+<aside class="side" id="sideL"></aside>
 <div class="wrap">
   <header class="top">
     <div class="top-row">
@@ -351,6 +374,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
   </nav>
   <main id="view"></main>
 </div>
+<aside class="side" id="sideR"></aside>
 <div class="timer" id="timer" hidden>
   <div class="bar" id="tbar"></div>
   <div class="in">
@@ -509,6 +533,7 @@ function migrate(){
   if(BUILT_DATA){S.health=HEALTH;S.cal=CAL_EVENTS}else{if(S.health)HEALTH=S.health;if(S.cal){CAL_EVENTS=S.cal;applyCalTimes()}}
   Object.keys(LOGGED).forEach(d=>{const c=S.sessions[d];if(!c||(!c.done&&!Object.keys(c.sets||{}).length))S.sessions[d]=JSON.parse(JSON.stringify(LOGGED[d]))});
   S.acc=S.acc||{};Object.keys(LOGGED_ACC).forEach(d=>{S.acc[d]=Object.assign({},LOGGED_ACC[d],S.acc[d]||{})});
+  S.todos=S.todos||{};
   S.daily=S.daily||{};S.skills=S.skills||{};S.acc=S.acc||{};S.cycle=S.cycle||{days:{}};S.cycle.days=S.cycle.days||{};S.ny=S.ny||{intentions:['','','']};
   Object.keys(S.steps).forEach(d=>{if(S.steps[d]!==''&&S.steps[d]!=null){(S.daily[d]=S.daily[d]||{}).steps=+S.steps[d]}});S.steps={};
 }
@@ -1039,16 +1064,70 @@ function renderFood(){
 }
 
 /* ====== calendar ====== */
+function dayEvents(date){
+  const s=sessByDate[date],evs=[],d=(new Date(date+'T00:00:00Z').getUTCDay()+6)%7;
+  if(CAL_EVENTS.length)CAL_EVENTS.filter(e=>e[0]===date&&e[3]!=='gym'&&e[3]!=='holiday').forEach(e=>evs.push({t:e[1],n:e[2],k:e[3]}));
+  else{if(date<=CLASSES_END)(CLASS_WEEK[d]||[]).forEach(e=>evs.push({t:e[0],n:e[1],k:'class'}));if(SHIFTS[d])evs.push({t:SHIFTS[d][0],n:SHIFTS[d][1],k:'work'})}
+  if(s){const m=META[s.tpl];evs.push({t:s.time,n:(isComplete(s)?'✓ ':'')+m.name+(m.run&&s.key!=='0lowerA'?' + walk-run':'')+(s.optional?' (optional)':''),k:'workout',go:date})}
+  evs.sort((a,b)=>a.t<b.t?-1:1);
+  const hol=CAL_EVENTS.find(e=>e[0]===date&&e[3]==='holiday');
+  if(hol)evs.unshift({t:'all day',n:hol[2],k:'holiday'});else if(HOLIDAYS[date])evs.unshift({t:'all day',n:HOLIDAYS[date],k:'holiday'});
+  predictedPeriods(date,date).forEach(p=>{if(date>=p[0]&&date<=p[1])evs.push({t:'',n:p[2],k:'cycle'})});
+  if(d>=4&&!s)evs.push({t:'all day',n:'No gym · 7,000+ steps',k:'off'});
+  return evs;
+}
+/* ====== side panels: month calendar (left) + to-do (right) ====== */
+let MCAL=null,MSEL=TODAY,TODOSHOW=false;
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function monthHTML(){
+  if(!MCAL)MCAL=TODAY.slice(0,7);
+  const [y,m]=MCAL.split('-').map(Number),first=MCAL+'-01',off=(new Date(first+'T00:00:00Z').getUTCDay()+6)%7,days=new Date(Date.UTC(y,m,0)).getUTCDate();
+  let g='';for(let i=0;i<off;i++)g+='<span></span>';
+  for(let i=1;i<=days;i++){const d=MCAL+'-'+String(i).padStart(2,'0'),evs=dayEvents(d),s=sessByDate[d];
+    const dots=[s?(isComplete(s)?'workout done':'workout'):'',evs.some(e=>e.k==='class')?'class':'',evs.some(e=>e.k==='work')?'work':'',evs.some(e=>e.k==='holiday')?'holiday':'',evs.some(e=>e.k==='cycle')?'cycle':''].filter(Boolean);
+    g+='<button type="button" class="mday'+(d===TODAY?' today':'')+(d===MSEL?' sel':'')+'" data-md="'+d+'"><b>'+i+'</b><span class="mdots">'+dots.map(x=>'<i class="'+x+'"></i>').join('')+'</span></button>'}
+  const evs=dayEvents(MSEL).filter(e=>e.k!=='off');
+  return '<section class="card stack side-cal"><div class="spread"><button class="btn sm ghost" id="mprev" aria-label="Previous month">‹</button><h3>'+MONTHS[m-1]+' '+y+'</h3><button class="btn sm ghost" id="mnext" aria-label="Next month">›</button></div>'+
+    '<div class="mgrid mhead">'+['Mo','Tu','We','Th','Fr','Sa','Su'].map(x=>'<span>'+x+'</span>').join('')+'</div><div class="mgrid">'+g+'</div>'+
+    '<div class="mlegend2"><span><i class="workout"></i>gym</span><span><i class="class"></i>school</span><span><i class="work"></i>work</span><span><i class="cycle"></i>period</span></div>'+
+    '<div class="stack" style="gap:6px"><b>'+fmt(MSEL)+'</b>'+(evs.length?evs.map(e=>(e.go?'<button class="ev workout" data-go="'+e.go+'">':'<div class="ev '+e.k+'">')+'<span class="t">'+e.t+'</span><span>'+esc(e.n)+'</span>'+(e.go?'</button>':'</div>')).join(''):'<div class="small muted">Nothing planned.</div>')+'</div></section>';
+}
+function todoHTML(){
+  const T=S.todos||{},all=Object.keys(T).map(id=>Object.assign({id},T[id])).sort((a,b)=>(a.ts||0)-(b.ts||0)),open=all.filter(x=>!x.done),done=all.filter(x=>x.done).reverse();
+  const item=x=>'<li class="todo'+(x.done?' done':'')+'"><button type="button" class="tick'+(x.done?' on':'')+'" data-tt="'+x.id+'" aria-label="'+(x.done?'Mark not done':'Mark done')+'">✓</button><span>'+esc(x.t)+'</span><button type="button" class="tdel" data-td="'+x.id+'" aria-label="Delete">×</button></li>';
+  return '<section class="card stack side-todo"><div class="spread"><h3>To-do</h3><span class="small muted">'+open.length+' left</span></div>'+
+    '<form id="tform" class="trow"><input id="tin" class="inp" placeholder="Add a task…" autocomplete="off"><button class="btn primary sm">Add</button></form>'+
+    '<ul class="todos">'+(open.length?open.map(item).join(''):'<li class="small muted">All done 🎉</li>')+'</ul>'+
+    (done.length?'<details'+(TODOSHOW?' open':'')+' id="tdone"><summary class="small muted">Done ('+done.length+')</summary><ul class="todos">'+done.map(item).join('')+'</ul></details>':'')+'</section>';
+}
+function bindSides(root){
+  const q=sel=>root.querySelector(sel);
+  const mp=q('#mprev');if(mp){const sh=k=>{const [y,m]=MCAL.split('-').map(Number),dt=new Date(Date.UTC(y,m-1+k,1));MCAL=dt.toISOString().slice(0,7);renderSides()};mp.onclick=()=>sh(-1);q('#mnext').onclick=()=>sh(1)}
+  root.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{MSEL=b.dataset.md;renderSides()});
+  root.querySelectorAll('.side-cal [data-go]').forEach(b=>b.onclick=()=>{SEL=b.dataset.go;S.ui.sel=SEL;save();setView('workout');window.scrollTo({top:0})});
+  const f=q('#tform');if(f)f.onsubmit=e=>{e.preventDefault();const t=q('#tin').value.trim();if(!t)return;S.todos=S.todos||{};S.todos['t'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)]={t,done:false,ts:Date.now()};save();renderSides(true)};
+  root.querySelectorAll('[data-tt]').forEach(b=>b.onclick=()=>{const x=S.todos[b.dataset.tt];x.done=!x.done;save();renderSides()});
+  root.querySelectorAll('[data-td]').forEach(b=>b.onclick=()=>{delete S.todos[b.dataset.td];save();renderSides()});
+  const dt=q('#tdone');if(dt)dt.ontoggle=()=>{TODOSHOW=dt.open};
+}
+function renderSides(focusTodo){
+  const L=$('#sideL'),R=$('#sideR');
+  if(L){L.innerHTML=monthHTML();bindSides(L)}
+  if(R){R.innerHTML=todoHTML();bindSides(R)}
+  const inCal=$('#calsides');if(inCal){inCal.innerHTML=todoHTML()+monthHTML();bindSides(inCal)}
+  if(focusTodo){const i=document.querySelector(window.innerWidth>=1280?'#sideR #tin':'#calsides #tin');if(i)i.focus()}
+}
+
 let CALWK=null,PERIODS_CACHE=[];
 function renderCalendar(){
   if(CALWK==null){CALWK=WEEKS.findIndex(w=>TODAY>=w.start&&TODAY<=addDays(w.start,6));if(CALWK<0)CALWK=TODAY<WEEKS[0].start?0:15}
   const w=WEEKS[CALWK];
   PERIODS_CACHE=predictedPeriods(w.start,addDays(w.start,6));
-  let h='<div class="stack"><div class="seg scroll" id="calseg">'+WEEKS.map((x,i)=>'<button type="button" data-i="'+i+'" aria-pressed="'+(i===CALWK)+'">'+x.n+'</button>').join('')+'</div>';
+  let h='<div class="stack"><div id="calsides" class="stack"></div><div class="seg scroll" id="calseg">'+WEEKS.map((x,i)=>'<button type="button" data-i="'+i+'" aria-pressed="'+(i===CALWK)+'">'+x.n+'</button>').join('')+'</div>';
   h+='<section class="card" style="'+wstyle(w)+'"><div class="spread" style="margin-bottom:6px"><h2>'+fmtS(w.start)+' – '+fmtS(addDays(w.start,6))+'</h2><span class="pill wk">Wk '+w.n+' · '+w.block.name+(w.deload?' · deload':'')+'</span></div><div>';
   for(let d=0;d<7;d++){
-    const date=addDays(w.start,d),s=sessByDate[date],evs=[];
-    const live=CAL_EVENTS.length>0;
+    const date=addDays(w.start,d),evs=dayEvents(date);
+    if(false){const s=null;const live=CAL_EVENTS.length>0;
     if(live)CAL_EVENTS.filter(e=>e[0]===date&&e[3]!=='gym'&&e[3]!=='holiday').forEach(e=>evs.push({t:e[1],n:e[2],k:e[3]}));
     else{if(date<=CLASSES_END)(CLASS_WEEK[d]||[]).forEach(e=>evs.push({t:e[0],n:e[1],k:'class'}));if(SHIFTS[d])evs.push({t:SHIFTS[d][0],n:SHIFTS[d][1],k:'work'})}
     if(s){const m=META[s.tpl];evs.push({t:s.time,n:(isComplete(s)?'✓ ':'')+m.name+(m.run&&s.key!=='0lowerA'?' + walk-run':'')+(s.optional?' (optional)':''),k:'workout',go:date})}
@@ -1056,13 +1135,14 @@ function renderCalendar(){
     const hol=CAL_EVENTS.find(e=>e[0]===date&&e[3]==='holiday');
     if(hol)evs.unshift({t:'all day',n:hol[2],k:'holiday'});else if(HOLIDAYS[date])evs.unshift({t:'all day',n:HOLIDAYS[date],k:'holiday'});
     PERIODS_CACHE.forEach(p=>{if(date>=p[0]&&date<=p[1])evs.push({t:'',n:p[2],k:'cycle'})});
-    if(d>=4&&!s)evs.push({t:'all day',n:'No gym · 7,000+ steps',k:'off'});
+    }
     const dd=new Date(date+'T00:00:00Z');
     h+='<div class="cal-day '+(date===TODAY?'today':'')+'"><div class="dl"><b>'+dd.getUTCDate()+'</b><span>'+DOW[dd.getUTCDay()]+'</span></div><div class="evs">'+
       evs.map(e=>e.go?'<button class="ev workout" data-go="'+e.go+'"><span class="t">'+e.t+'</span><span>'+esc(e.n)+'</span></button>':'<div class="ev '+e.k+'"><span class="t">'+e.t+'</span><span>'+esc(e.n)+'</span></div>').join('')+'</div></div>';
   }
   h+='</div></section><div class="small muted">Calendar and sleep data come from the Claude version, via its backup. <a href="https://calendar.google.com/calendar/r/week/'+w.start.replace(/-/g,'/')+'" target="_blank" rel="noopener">Open this week in Google Calendar</a></div></div>';
   $('#view').innerHTML=h;
+  renderSides();
   const seg=$('#calseg');seg.onclick=e=>{const b=e.target.closest('button');if(b){CALWK=+b.dataset.i;renderCalendar()}};
   const on=seg.querySelector('[aria-pressed="true"]');if(on)seg.scrollLeft=on.offsetLeft-seg.clientWidth/2;
   $('#view').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{SEL=b.dataset.go;S.ui.sel=SEL;save();setView('workout');window.scrollTo({top:0})});
@@ -1143,13 +1223,13 @@ function setView(v){
   renderHeader();VIEWS[v]();
   if(location.hash!=='#'+v)try{history.replaceState(null,'','#'+v)}catch(e){location.hash=v}
 }
-function renderAll(){SEL=null;setView(VIEW)}
+function renderAll(){SEL=null;setView(VIEW);renderSides()}
 $('#strip').onclick=e=>{const c=e.target.closest('[data-go]');if(c){SEL=c.dataset.go;S.ui.sel=SEL;save();setView('workout')}};
 $('#tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)setView(b.dataset.v)};
 window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(v&&v!==VIEW)setView(v)});
 let start=(location.hash||'#workout').slice(1);
 if(TODAY>='2027-01-01'&&!S.ui.nySeen){S.ui.nySeen=true;save();start='newyear'}
-setView(start);
+setView(start);renderSides();
 /* ====== GitHub sync (public build only) ======
    Data lives in a private repo the user owns (default miskahvodlikova-create/tracker-data, file data.json).
    Token + repo are stored in this browser only (never in backups). Last write wins, by S._ts. */
@@ -1166,7 +1246,7 @@ const dec=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),
 const hhmm=()=>new Date().toTimeString().slice(0,5);
 function setStatus(t){status=t;const el=document.getElementById('syncst');if(el)el.textContent=t}
 const BK='tracker-sync-base-v1';
-const DICTS=['sessions','food','acc','daily','skills','steps'];
+const DICTS=['sessions','food','acc','daily','skills','steps','todos'];
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function pick(b,l,r,hasBase){if(eq(l,r))return l;if(!hasBase){if(r===undefined)return l;if(l===undefined)return r;return JSON.stringify(l).length>=JSON.stringify(r).length?l:r}if(eq(l,b))return r;if(eq(r,b))return l;return l}
 function mergeDict(b,l,r,hasBase){b=b||{};l=l||{};r=r||{};const o={};new Set([...Object.keys(l),...Object.keys(r)]).forEach(k=>{const v=pick(b[k],l[k],r[k],hasBase);if(v!==undefined)o[k]=v});return o}
