@@ -848,11 +848,11 @@ function renderHealth(){
   h+='<section class="card stack"><div class="spread"><h3>Sets per week</h3><span class="small muted">deload weeks dip on purpose</span></div>'+chartSVG(wk.map(w=>w.start),setsMap,{type:'bar',min:0,label:'Sets per week',fmt:(v,l)=>Math.round(v)+(l?' sets':''),color:()=>'var(--twilight)'})+'</section>';
   const md=Object.keys(Object.assign({},moodB,moodA)).sort();
   h+='<section class="card stack"><div class="spread"><h3>Mood before → after</h3><span class="small muted">1–10</span></div>'+(md.length?moodChart(md,moodB,moodA):'<div class="hint">Rate your mood before and after each session and the lift shows up here.</div>')+'</section>';
-  h+='<section class="card stack"><h3>Backup</h3><div class="small muted">Everything saves in this browser only. Copy a backup now and then, and paste it to restore on another device.</div>'+
+  h+='<section class="card stack" id="syncbox"></section><section class="card stack"><h3>Backup</h3><div class="small muted">Everything saves in this browser only. Copy a backup now and then, and paste it to restore on another device.</div>'+
      '<div class="row"><button class="btn" id="bcopy">Copy backup</button><button class="btn ghost" id="bshow">Paste a backup</button><button class="btn ghost danger" id="breset">Reset all</button></div><div id="bbox"></div></section></div>';
   $('#view').innerHTML=h;
   $('#rng').onclick=e=>{const b=e.target.closest('button');if(b){RANGE=+b.dataset.r;S.ui.range=RANGE;save();renderHealth()}};
-  bindCheckin();bindAcc(()=>renderHealth());bindCycle();
+  bindCheckin();bindAcc(()=>renderHealth());bindCycle();if(window.syncUI)syncUI();
   $('#view').querySelectorAll('[data-wdel]').forEach(b=>b.onclick=()=>{S.weights=S.weights.filter(x=>x.date!==b.dataset.wdel);save();renderHealth()});
   bindBackup();
 }
@@ -1141,6 +1141,66 @@ window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(v&&v
 let start=(location.hash||'#workout').slice(1);
 if(TODAY>='2027-01-01'&&!S.ui.nySeen){S.ui.nySeen=true;save();start='newyear'}
 setView(start);
+/* ====== GitHub sync (public build only) ======
+   Data lives in a private repo the user owns (default miskahvodlikova-create/tracker-data, file data.json).
+   Token + repo are stored in this browser only (never in backups). Last write wins, by S._ts. */
+(function(){
+const SK='tracker-sync-v1';
+let cfg={};try{cfg=JSON.parse(localStorage.getItem(SK))||{}}catch(e){}
+cfg.repo=cfg.repo||'miskahvodlikova-create/tracker-data';
+const saveCfg=()=>{try{localStorage.setItem(SK,JSON.stringify(cfg))}catch(e){}};
+let sha=null,timer=null,busy=false,again=false,status=cfg.token?'Connecting…':'Not connected';
+const api=(path,opt={})=>fetch('https://api.github.com/repos/'+cfg.repo+'/contents/data.json'+path,{...opt,cache:'no-store',
+  headers:{'Authorization':'Bearer '+cfg.token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28',...(opt.body?{'Content-Type':'application/json'}:{})}});
+const enc=s=>{const b=new TextEncoder().encode(s);let x='';for(let i=0;i<b.length;i+=0x8000)x+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(x)};
+const dec=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0)));
+const hhmm=()=>new Date().toTimeString().slice(0,5);
+function setStatus(t){status=t;const el=document.getElementById('syncst');if(el)el.textContent=t}
+async function pull(){
+  if(!cfg.token)return;
+  try{
+    const r=await api('?t='+Date.now());
+    if(r.status===404){sha=null;await push(true);return}
+    if(!r.ok)throw new Error(r.status===401?'key not accepted':'GitHub error '+r.status);
+    const j=await r.json();sha=j.sha;
+    const remote=JSON.parse(dec(j.content));
+    if(remote&&remote.sessions&&(remote._ts||0)>(S._ts||0)){S=remote;migrate();_save();renderAll();setStatus('Synced '+hhmm())}
+    else if((S._ts||0)>(remote._ts||0))await push(true);
+    else setStatus('Synced '+hhmm());
+  }catch(e){setStatus('Sync problem: '+e.message)}
+}
+async function push(now){
+  if(!cfg.token)return;
+  if(busy){again=true;return}
+  busy=true;
+  try{
+    const body={message:'sync '+new Date().toISOString(),content:enc(JSON.stringify(S))};if(sha)body.sha=sha;
+    let r=await api('',{method:'PUT',body:JSON.stringify(body)});
+    if(r.status===409||r.status===422){busy=false;await pull();return}
+    if(!r.ok)throw new Error(r.status===401?'key not accepted':r.status===404?'repo not found':'GitHub error '+r.status);
+    sha=(await r.json()).content.sha;setStatus('Synced '+hhmm());
+  }catch(e){setStatus('Sync problem: '+e.message)}
+  busy=false;if(again){again=false;push()}
+}
+const _save=save;
+save=function(){S._ts=Date.now();_save();if(cfg.token){setStatus('Saving…');clearTimeout(timer);timer=setTimeout(push,1500)}};
+window.syncUI=function(){
+  const box=document.getElementById('syncbox');if(!box)return;
+  box.innerHTML='<div class="spread"><h3>Sync phone ↔ PC</h3><span class="small muted" id="syncst"></span></div>'+
+    (cfg.token
+      ?'<div class="small muted">Saving to your private repo <b>'+cfg.repo+'</b>. Changes sync a couple of seconds after you make them, and when you open the app.</div><div class="row"><button class="btn" id="snow">Sync now</button><button class="btn ghost danger" id="soff">Disconnect this device</button></div>'
+      :'<div class="small muted">Paste your GitHub key (starts with github_pat_). It stays on this device only.</div><input id="stok" type="password" autocomplete="off" placeholder="github_pat_…"><input id="srepo" value="'+cfg.repo+'"><div class="row"><button class="btn primary" id="son">Connect</button></div>');
+  setStatus(status);
+  const on=document.getElementById('son');
+  if(on)on.onclick=()=>{const t=document.getElementById('stok').value.trim();if(!t)return;cfg.token=t;cfg.repo=document.getElementById('srepo').value.trim()||cfg.repo;saveCfg();sha=null;status='Connecting…';syncUI();pull()};
+  const n=document.getElementById('snow');if(n)n.onclick=()=>{setStatus('Syncing…');pull()};
+  const o=document.getElementById('soff');if(o)o.onclick=()=>{delete cfg.token;saveCfg();status='Not connected';syncUI()};
+};
+syncUI();pull();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
+})();
+window.__trk={get S(){return S},save:()=>save()};
+
 })();
 </script>
 
