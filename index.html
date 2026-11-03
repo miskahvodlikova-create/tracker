@@ -490,6 +490,7 @@ const HOLIDAYS={'2026-11-17':'State holiday','2026-12-24':'Christmas Eve','2026-
 /* ====== state ====== */
 /* sessions logged elsewhere (Hevy screenshots), merged in if that day is still empty */
 const LOGGED={};
+const LOGGED_ACC={};
 const KEY='patrik-training-block-v1';
 function seed(){
   const S1=(kg,reps)=>({kg:String(kg),reps:String(reps),done:true});
@@ -507,6 +508,7 @@ function migrate(){
   S.food=S.food||{};S.weights=S.weights||[];S.steps=S.steps||{};S.ui=S.ui||{};S.targets=S.targets||{kcal:2000,p:105};
   if(BUILT_DATA){S.health=HEALTH;S.cal=CAL_EVENTS}else{if(S.health)HEALTH=S.health;if(S.cal){CAL_EVENTS=S.cal;applyCalTimes()}}
   Object.keys(LOGGED).forEach(d=>{const c=S.sessions[d];if(!c||(!c.done&&!Object.keys(c.sets||{}).length))S.sessions[d]=JSON.parse(JSON.stringify(LOGGED[d]))});
+  S.acc=S.acc||{};Object.keys(LOGGED_ACC).forEach(d=>{S.acc[d]=Object.assign({},LOGGED_ACC[d],S.acc[d]||{})});
   S.daily=S.daily||{};S.skills=S.skills||{};S.acc=S.acc||{};S.cycle=S.cycle||{days:{}};S.cycle.days=S.cycle.days||{};S.ny=S.ny||{intentions:['','','']};
   Object.keys(S.steps).forEach(d=>{if(S.steps[d]!==''&&S.steps[d]!=null){(S.daily[d]=S.daily[d]||{}).steps=+S.steps[d]}});S.steps={};
 }
