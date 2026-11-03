@@ -329,9 +329,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
 @media (min-width:1080px){
   .desk-only{display:revert!important}.mob-only{display:none!important}
   .wrap{max-width:none;padding-left:28px;padding-right:28px;padding-bottom:60px}
-  .tabs{grid-template-columns:repeat(4,1fr);max-width:760px}
+  .tabs{grid-template-columns:repeat(5,1fr);max-width:950px}
   #calsides{display:none}
-  body:not(.v-home) .top .strip-wrap,body:not(.v-home) #stats{display:none}
+  body:not(.v-home):not(.v-workout) .top .strip-wrap,body:not(.v-home):not(.v-workout) #stats{display:none}
   .grid3{display:grid;grid-template-columns:minmax(260px,330px) minmax(0,1fr) minmax(290px,360px);gap:22px;align-items:start}
   .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
   .gridT{display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:22px;align-items:start}
@@ -381,9 +381,9 @@ i.due{background:var(--pink)}
   </header>
   <nav class="tabs" role="tablist" id="tabs">
     <button class="tab desk-only" role="tab" data-v="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></button>
+    <button class="tab" role="tab" data-v="workout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20M5 8v8M8 6v12M16 6v12M19 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Workout</span></button>
     <button class="tab desk-only" role="tab" data-v="training"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20M5 8v8M8 6v12M16 6v12M19 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Training</span></button>
     <button class="tab desk-only" role="tab" data-v="hf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Health &amp; Food</span></button>
-    <button class="tab mob-only" role="tab" data-v="workout"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h20M5 8v8M8 6v12M16 6v12M19 8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Workout</span></button>
     <button class="tab mob-only" role="tab" data-v="plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h1M4 12h1M4 18h1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Plan</span></button>
     <button class="tab" role="tab" data-v="skills"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Skills</span></button>
     <button class="tab mob-only" role="tab" data-v="health"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Health</span></button>
@@ -741,7 +741,6 @@ function renderWorkout(){
   h+='<section class="card stack"><h3>Mood after (1–10)</h3>'+scaleHTML('moodAfter',st.moodAfter)+'<h3>How hard was it? (1–10)</h3>'+scaleHTML('rpe',st.rpe)+
      '<h3>Ankles</h3><div class="seg" data-field="ankles">'+['Fine','Stiff','Painful'].map(a=>'<button type="button" data-val="'+a+'" aria-pressed="'+(st.ankles===a)+'">'+a+'</button>').join('')+'</div>'+
      '<label class="stack" style="gap:6px"><h3>Notes</h3><textarea id="notes" placeholder="Sleep, energy, cycle, music that worked...">'+esc(st.notes)+'</textarea></label><div id="donebox"></div></section></div>';
-  if(isDesk())h='<button class="btn sm ghost backlink" id="toplan">‹ Back to training plan</button>'+h;
   $('#view').innerHTML=h;bindWorkout(s);updateSessionProgress(s,false);const tp=$('#toplan');if(tp)tp.onclick=()=>setView('training');
   const reAcc=()=>{const sec=$('#acc');if(sec){sec.outerHTML=accHTML(TODAY,true);bindAcc(reAcc)}};bindAcc(reAcc);
 }
@@ -824,7 +823,7 @@ function renderPlan(){
   h+='</div>';
   const cb=document.getElementById('col-badges');
   const RULES='<section class="card stack"><h2>House rules</h2>',ri=hb.indexOf(RULES),hbadge=hb.slice(0,ri),hrules=hb.slice(ri);
-  if(cb){cb.innerHTML=hb;vt('plan').innerHTML=h}else $('#view').innerHTML='<div class="stack">'+hbadge+h+hrules+'</div>';
+  if(cb){cb.innerHTML=hbadge;vt('plan').innerHTML=h}else $('#view').innerHTML='<div class="stack">'+hbadge+h+'</div>';
   (cb?cb.parentElement:$('#view')).onclick=e=>{const b=e.target.closest('[data-go]');if(b){SEL=b.dataset.go;S.ui.sel=SEL;save();setView('workout');window.scrollTo({top:0})}};
   const nb=$('#nybadge');if(nb)nb.onclick=()=>setView('newyear');
 }
@@ -1259,7 +1258,7 @@ function setView(v){
   if(isDesk()&&MOB_ONLY[v])v=MOB_ONLY[v];if(!isDesk()&&DESK_ONLY[v])v=v==='home'?'calendar':v==='hf'?'health':'plan';
   VIEW=v;cancelAnimationFrame(nyAnim);
   document.body.className=document.body.className.replace(/\bv-\S+/g,'').trim()+' v-'+v;
-  const tabv=isDesk()&&v==='workout'?'training':v;
+  const tabv=v;
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',t.dataset.v===tabv));
   const fresh=$('#view').cloneNode(false);$('#view').replaceWith(fresh);
   renderHeader();VIEWS[v]();
