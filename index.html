@@ -1222,6 +1222,8 @@ window.syncUI=function(){
 };
 syncUI();pull();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
+setInterval(()=>{if(document.visibilityState==='visible')pull()},45000);
+window.addEventListener('focus',()=>pull());
 })();
 window.__trk={get S(){return S},save:()=>save()};
 
