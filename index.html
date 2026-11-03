@@ -365,10 +365,11 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
 (function(){
 "use strict";
 /* ====== data from Apple Health (Health Auto Export CSV, Mi Fitness band): [date, steps, sleep h, overnight low HR, daily max HR] ====== */
-const HEALTH=[];
+let HEALTH=[];
 const HEALTH_SYNC='';
 /* calendar events pulled from Google Calendar: [date, 'HH:MM–HH:MM' or 'all day', title, kind: class|work|holiday|gym|other] */
-const CAL_EVENTS=[];
+let CAL_EVENTS=[];
+const BUILT_DATA=HEALTH.length>0;
 const CAL_SYNC='';
 const WEIGHT_HISTORY=[];
 
@@ -475,7 +476,8 @@ WEEKS.forEach(w=>DAYPLAN.forEach(d=>{
   const date=addDays(w.start,d.off);const first=(w.n===1&&d.off===0);
   SESSIONS.push({date,week:w,tpl:d.tpl,key:first?'0lowerA':w.block.n+d.tpl,time:first?'12:00–12:45':d.time,optional:OPTIONAL[date]||null});
 }));
-SESSIONS.forEach(s=>{const g=CAL_EVENTS.find(e=>e[0]===s.date&&e[3]==='gym');if(g&&s.key!=='0lowerA')s.time=g[1]});
+function applyCalTimes(){SESSIONS.forEach(s=>{const g=CAL_EVENTS.find(e=>e[0]===s.date&&e[3]==='gym');if(g&&s.key!=='0lowerA')s.time=g[1]})}
+applyCalTimes();
 const sessByDate=Object.fromEntries(SESSIONS.map(s=>[s.date,s]));
 const LAST_DAY=SESSIONS[SESSIONS.length-1].date;
 
@@ -501,6 +503,7 @@ try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){S=null}
 if(!S||!S.sessions)S=seed();
 function migrate(){
   S.food=S.food||{};S.weights=S.weights||[];S.steps=S.steps||{};S.ui=S.ui||{};S.targets=S.targets||{kcal:2000,p:105};
+  if(BUILT_DATA){S.health=HEALTH;S.cal=CAL_EVENTS}else{if(S.health)HEALTH=S.health;if(S.cal){CAL_EVENTS=S.cal;applyCalTimes()}}
   S.daily=S.daily||{};S.skills=S.skills||{};S.acc=S.acc||{};S.cycle=S.cycle||{days:{}};S.cycle.days=S.cycle.days||{};S.ny=S.ny||{intentions:['','','']};
   Object.keys(S.steps).forEach(d=>{if(S.steps[d]!==''&&S.steps[d]!=null){(S.daily[d]=S.daily[d]||{}).steps=+S.steps[d]}});S.steps={};
 }
@@ -893,7 +896,7 @@ function sumText(bed,wake){const m=sleepMin(bed,wake);return m!=null?'Asleep '+b
 function checkinHTML(){
   const x=S.daily[CKDATE]||{},w=S.weights.find(v=>v.date===CKDATE);QSEL=x.quality!=null?String(x.quality):null;
   return '<section class="card stack" id="ck"><div class="spread"><h2>Morning check-in</h2><input id="dd" class="inp" type="date" style="max-width:170px" value="'+CKDATE+'" aria-label="Check-in date"></div>'+
-    (()=>{const bn=bandNight(CKDATE);return bn?'<div class="band"><span class="eyebrow">Last night · Mi band</span><div class="bandrow"><div><b class="mono">'+bn.bed+'</b><span>fell asleep</span></div><div><b class="mono">'+bn.wake+'</b><span>woke up</span></div><div><b class="mono">'+(m=>Math.floor(m/60)+'h '+pad(m%60)+'m')(sleepMin(bn.bed,bn.wake))+'</b><span>asleep</span></div></div></div>':'<div class="band"><span class="eyebrow">Last night · Mi band</span><div class="small">Mi band sleep times only show in the Claude version of the tracker.</div></div>'})()+
+    (()=>{const bn=bandNight(CKDATE);return bn?'<div class="band"><span class="eyebrow">Last night · Mi band</span><div class="bandrow"><div><b class="mono">'+bn.bed+'</b><span>fell asleep</span></div><div><b class="mono">'+bn.wake+'</b><span>woke up</span></div><div><b class="mono">'+(m=>Math.floor(m/60)+'h '+pad(m%60)+'m')(sleepMin(bn.bed,bn.wake))+'</b><span>asleep</span></div></div></div>':'<div class="band"><span class="eyebrow">Last night · Mi band</span><div class="small">No band data for this night yet. New sleep data comes over with a backup from the Claude version.</div></div>'})()+
     '<div class="addform" style="grid-template-columns:minmax(0,180px)"><label>Weight (kg)<input id="dkg" class="inp" inputmode="decimal" placeholder="65.0" value="'+(w?w.kg:'')+'"></label></div>'+
     '<div class="stack" style="gap:6px"><b>How well did you sleep?</b><div class="seg" id="dq">'+QUAL.map(q=>'<button type="button" data-q="'+q[0]+'" aria-pressed="'+(QSEL===q[0])+'"><b>'+q[0]+'</b><span>'+q[1]+'</span></button>').join('')+'</div></div>'+
     '<div class="row"><button class="btn primary" id="dsave">Save check-in</button><span class="small muted" id="dmsg"></span></div>'+
@@ -1052,7 +1055,7 @@ function renderCalendar(){
     h+='<div class="cal-day '+(date===TODAY?'today':'')+'"><div class="dl"><b>'+dd.getUTCDate()+'</b><span>'+DOW[dd.getUTCDay()]+'</span></div><div class="evs">'+
       evs.map(e=>e.go?'<button class="ev workout" data-go="'+e.go+'"><span class="t">'+e.t+'</span><span>'+esc(e.n)+'</span></button>':'<div class="ev '+e.k+'"><span class="t">'+e.t+'</span><span>'+esc(e.n)+'</span></div>').join('')+'</div></div>';
   }
-  h+='</div></section><div class="small muted">Gym days follow the plan. (Calendar sync only works in the Claude version.) <a href="https://calendar.google.com/calendar/r/week/'+w.start.replace(/-/g,'/')+'" target="_blank" rel="noopener">Open this week in Google Calendar</a></div></div>';
+  h+='</div></section><div class="small muted">Calendar and sleep data come from the Claude version, via its backup. <a href="https://calendar.google.com/calendar/r/week/'+w.start.replace(/-/g,'/')+'" target="_blank" rel="noopener">Open this week in Google Calendar</a></div></div>';
   $('#view').innerHTML=h;
   const seg=$('#calseg');seg.onclick=e=>{const b=e.target.closest('button');if(b){CALWK=+b.dataset.i;renderCalendar()}};
   const on=seg.querySelector('[aria-pressed="true"]');if(on)seg.scrollLeft=on.offsetLeft-seg.clientWidth/2;
