@@ -520,7 +520,7 @@ WEEKS.forEach(w=>DAYPLAN.forEach(d=>{
   SESSIONS.push({date,week:w,tpl:d.tpl,key:first?'0lowerA':w.block.n+d.tpl,time:first?'12:00–12:45':d.time,optional:OPTIONAL[date]||null});
 }));
 /* one-off extra sessions (not part of the 64) */
-const EXTRA=[{date:'2026-11-07',tpl:'fullQ',key:'xfullQ',time:'12:00–12:30',optional:'Extra · quick ~30 min, easy (4/10): 22 h of work in 2 days. 3–4 reps in the tank'}];
+const EXTRA=[{date:'2026-11-07',tpl:'fullQ',key:'xfullQ',time:'12:00–12:30',optional:'Extra · easy 4/10'}];
 EXTRA.forEach(x=>SESSIONS.push(Object.assign({week:WEEKS.find(w=>x.date>=w.start&&x.date<=addDays(w.start,6)),extra:true},x)));
 SESSIONS.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
 function applyCalTimes(){SESSIONS.forEach(s=>{const g=CAL_EVENTS.find(e=>e[0]===s.date&&e[3]==='gym');if(g&&s.key!=='0lowerA')s.time=g[1]})}
@@ -715,7 +715,7 @@ function renderWorkout(){
   let h='<div class="stack" style="'+wstyle(w)+'">';
   h+='<div class="spread"><button class="btn sm ghost" id="prev" '+(idx===0?'disabled':'')+'>‹ Prev</button><button class="btn sm ghost" id="today">Today</button><span class="small muted mono">'+(idx+1)+'/64</span><button class="btn sm ghost" id="next" '+(idx===63?'disabled':'')+'>Next ›</button></div>';
   h+='<section class="card hero"><div class="spread"><div><div class="eyebrow">'+fmt(s.date)+' · '+s.time+(s.date===TODAY?' · today':'')+'</div><h2>'+m.name+(m.run&&s.key!=='0lowerA'?' + walk-run':'')+'</h2></div>'+
-     '<div class="row"><span class="pill wk">Week '+w.n+' · '+w.block.name+(w.deload?' · deload':'')+'</span>'+(s.optional?'<span class="pill">Optional · '+esc(s.optional)+'</span>':'')+(()=>{const ci=cycleInfo(s.date);return ci?'<span class="pill" style="background:var(--lav)">Cycle day '+ci.day+' · '+PHASES[ci.phase][0]+'</span>':''})()+'</div></div>'+
+     '<div class="row"><span class="pill wk">Week '+w.n+' · '+w.block.name+(w.deload?' · deload':'')+'</span>'+(s.optional?'<span class="pill" style="white-space:normal">Optional · '+esc(s.optional)+'</span>':'')+(()=>{const ci=cycleInfo(s.date);return ci?'<span class="pill" style="background:var(--lav)">Cycle day '+ci.day+' · '+PHASES[ci.phase][0]+'</span>':''})()+'</div></div>'+
      '<div class="barbell" id="barbell" aria-hidden="true"></div><div class="progress"><i id="sprog"></i></div>'+
      '<div class="spread small"><span id="slabel" class="muted"></span><span class="muted">'+esc(s.key==='0lowerA'?'Logged from what you did on 2 Nov.':w.note)+'</span></div></section>';
   if(s.date>=TODAY||S.daily[s.date])h+='<div class="ready '+rd.cls+'"><b>'+esc(rd.head)+'</b><span>'+esc(rd.text)+'</span>'+(rd.rhrFlag?'<span><b>Heads-up:</b> '+esc(rd.rhrFlag)+'</span>':'')+'</div>';
