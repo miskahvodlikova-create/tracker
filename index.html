@@ -488,10 +488,12 @@ const COOL={
  lowerA:['Quad stretch · 30 s each side','Hip flexor stretch · 30 s each side','Box breathing 4-4-4-4 · 1 min'],
  upperA:['Lat stretch · 30 s each side','Chest doorway stretch · 30 s each side','Calf stretch + box breathing · 1 min'],
  lowerB:['Hamstring stretch · 30 s each side','Figure-4 glute stretch · 30 s each side','Box breathing 4-4-4-4 · 1 min'],
- upperB:['Upper-back stretch · 30 s each side','Rear-shoulder stretch · 30 s each side','Calf stretch + box breathing · 1 min']
+ upperB:['Upper-back stretch · 30 s each side','Rear-shoulder stretch · 30 s each side','Calf stretch + box breathing · 1 min'],
+ fullQ:['Hip flexor stretch · 30 s each side','Lat stretch · 30 s each side','Slow breathing · 1 min']
 };
-const META={lowerA:{name:'Lower A',kind:'lower',run:false},upperA:{name:'Upper A',kind:'upper',run:false},lowerB:{name:'Lower B',kind:'lower',run:false},upperB:{name:'Upper B',kind:'upper',run:false}};
+const META={lowerA:{name:'Lower A',kind:'lower',run:false},upperA:{name:'Upper A',kind:'upper',run:false},lowerB:{name:'Lower B',kind:'lower',run:false},upperB:{name:'Upper B',kind:'upper',run:false},fullQ:{name:'Full body (quick)',kind:'full',run:false}};
 const TPL_ITEMS={
+ 'xfullQ':[I('legpress',2,'12',90,{tag:'A1',first:true,start:'Light: a weight you could do 15+ times'}),I('pulldown',2,'12',90,{tag:'A2',target:30}),I('hipthrust',2,'12',180,{tag:'B1',target:50}),I('csrow',2,'12',90,{tag:'B2',target:7.5})],
  '0lowerA':[I('hacksquat',2,'10',120),I('hipthrust',3,'12',180,{target:65}),I('legext',2,'12–15',60),I('abd',2,'15–20',60),I('legraise',3,'10',60,{extra:true})],
  '1lowerA':[I('legpress',3,'10–12',120,{first:true,start:'Start light: a weight you could do 13–15 times'}),I('hipthrust',3,'12',180,{target:65}),I('legext',2,'12–15',60,{target:25}),I('abd',2,'15–20',60,{target:40})],
  '1upperA':[I('csrow',3,'10–12',0,{tag:'A1',first:true}),I('chestpress',3,'10–12',90,{tag:'A2'}),I('pulldown',3,'10–12',0,{tag:'B1'}),I('fly',2,'12–15',60,{tag:'B2'})],
@@ -517,6 +519,10 @@ WEEKS.forEach(w=>DAYPLAN.forEach(d=>{
   const date=addDays(w.start,d.off);const first=(w.n===1&&d.off===0);
   SESSIONS.push({date,week:w,tpl:d.tpl,key:first?'0lowerA':w.block.n+d.tpl,time:first?'12:00–12:45':d.time,optional:OPTIONAL[date]||null});
 }));
+/* one-off extra sessions (not part of the 64) */
+const EXTRA=[{date:'2026-11-07',tpl:'fullQ',key:'xfullQ',time:'12:00–12:30',optional:'Extra · quick ~30 min, easy (4/10): 22 h of work in 2 days. 3–4 reps in the tank'}];
+EXTRA.forEach(x=>SESSIONS.push(Object.assign({week:WEEKS.find(w=>x.date>=w.start&&x.date<=addDays(w.start,6)),extra:true},x)));
+SESSIONS.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
 function applyCalTimes(){SESSIONS.forEach(s=>{const g=CAL_EVENTS.find(e=>e[0]===s.date&&e[3]==='gym');if(g&&s.key!=='0lowerA')s.time=g[1]})}
 applyCalTimes();
 const sessByDate=Object.fromEntries(SESSIONS.map(s=>[s.date,s]));
@@ -562,7 +568,7 @@ const wstyle=w=>'--wc:var('+w.c+');--wct:var('+w.t+')';
 const items=s=>TPL_ITEMS[s.key];
 function itemSets(it,w){let n=it.sets;if(w.block.n===1&&(w.wib===2||w.wib===3)&&it.first)n+=1;if(w.deload)n=Math.max(1,Math.round(n*0.6));return n}
 function sstate(date){if(!S.sessions[date])S.sessions[date]={checks:{},sets:{},moodBefore:null,moodAfter:null,rpe:null,ankles:null,notes:''};return S.sessions[date]}
-function warmList(kind){return ['Bike or cross-trainer, easy · 3 min','Ankle circles · 10 each way, each foot','Wall ankle rocks · 10 per side'].concat(kind==='lower'?['Glute bridge × 15','Bodyweight squat × 10']:['Band pull-aparts × 15','Arm circles · 10 each way'])}
+function warmList(kind){return ['Bike or cross-trainer, easy · 3 min','Ankle circles · 10 each way, each foot','Wall ankle rocks · 10 per side'].concat(kind==='full'?['Glute bridge × 10','Bodyweight squat × 10']:kind==='lower'?['Glute bridge × 15','Bodyweight squat × 10']:['Band pull-aparts × 15','Arm circles · 10 each way'])}
 function runParts(r){
   if(r.k==='int'){const a=[{lab:'walk',big:'3′',min:0}];for(let i=1;i<=r.r;i++)a.push({lab:r.jog+'′ / '+r.walk+'′',big:String(i),min:r.jog});return a}
   const a=[{lab:'walk',big:'3′',min:0}];let left=r.min,i=0;while(left>0){const m=Math.min(5,left);i+=m;a.push({lab:'jog',big:i+'′',min:m});left-=m}return a;
@@ -693,7 +699,7 @@ function renderHeader(){
     '<div class="stat"><b>'+st.cur+'</b><span>streak'+(st.best>st.cur?' · best '+st.best:'')+'</span></div>'+
     '<div class="stat"><b>'+sc.g+'</b><span>skills</span></div>'+
     '<div class="stat"><b>'+(S.food[TODAY]||[]).reduce((a,b)=>a+(+b.kcal||0),0)+'</b><span>kcal today</span></div>';
-  $('#strip').innerHTML=SESSIONS.map(s=>{const st=S.sessions[s.date]||{},mv=st.moodAfter!=null?st.moodAfter:st.moodBefore,done=isComplete(s);
+  $('#strip').innerHTML=SESSIONS.filter(s=>!s.extra).map(s=>{const st=S.sessions[s.date]||{},mv=st.moodAfter!=null?st.moodAfter:st.moodBefore,done=isComplete(s);
     const cls=mv!=null?'mood ':done?'nomood ':'';const tip=fmt(s.date)+' · '+META[s.tpl].name+(st.moodBefore!=null||st.moodAfter!=null?' · mood '+(st.moodBefore??'–')+' → '+(st.moodAfter??'–'):done?' · done, no mood logged':'');
     return '<i data-go="'+s.date+'" style="'+wstyle(s.week)+(mv!=null?';--mc:'+moodColor(mv):'')+'" class="'+cls+(s.optional?'opt ':'')+(s.date===TODAY?'today':'')+'" title="'+tip+'"></i>'}).join('');
   $('#mlegend').innerHTML='<span>Mood:</span>'+MOODS.map(m=>'<span><i style="--mc:'+m[1]+'"></i>'+m[0]+'</span>').join('')+'<span><i style="--mc:var(--surface);box-shadow:inset 0 0 0 2px var(--accent)"></i>done</span>';
@@ -801,7 +807,7 @@ function renderPlan(){
   let h='<div class="stack">',hb='';
   hb+='<section class="card stack"><div class="spread"><h2>Badges</h2><span class="small muted">'+bs.filter(b=>b[1]).length+' of '+bs.length+'</span></div><div class="badges">'+bs.map(b=>'<span class="badge '+(b[1]?'got':'')+'">'+(b[1]?'★ ':'')+esc(b[0])+'</span>').join('')+(daysToNY>0?'<span class="badge secret" title="Unlocks on 1 Jan">🔒 Secret · '+daysToNY+' day'+(daysToNY>1?'s':'')+'</span>':'<button class="badge got secret open" id="nybadge">★ Hello 2027 · open</button>')+'</div></section>';
   BLOCKS.forEach(b=>{
-    const ws=WEEKS.filter(w=>w.block===b),ss=SESSIONS.filter(s=>s.week.block===b),d=ss.filter(isComplete).length;
+    const ws=WEEKS.filter(w=>w.block===b),ss=SESSIONS.filter(s=>s.week.block===b&&!s.extra),d=ss.filter(isComplete).length;
     h+='<section class="card week" style="--wc:var('+b.c+');--wct:var('+b.t+')"><div class="block-head"><span class="block-num">'+b.n+'</span><div style="min-width:0;flex:1"><div class="spread"><h2>'+b.name+'</h2><span class="mono small">'+d+'/'+ss.length+'</span></div><div class="small muted">'+fmtS(ws[0].start)+' – '+fmtS(addDays(ws[3].start,3))+' · '+esc(b.goal)+'</div></div></div>';
     ws.forEach(w=>{
       h+='<div class="wkrow" style="'+wstyle(w)+'"><div><span class="pill wk">Wk '+w.n+'</span>'+(w.deload?'<div class="small muted" style="margin-top:4px">deload</div>':'')+'</div><div class="stack" style="gap:6px;min-width:0"><div class="small muted">'+esc(w.note)+'</div><div class="sessions">';
