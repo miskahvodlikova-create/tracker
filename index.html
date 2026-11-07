@@ -1122,7 +1122,8 @@ function dayEvents(date){
 }
 /* ====== school reminders (added by Claude when Michaelka sends them) ====== */
 const REMINDERS=[
- ['2026-11-11','Prezentácia','Anglický jazyk']
+ ['2026-11-11','Prezentácia','Anglický jazyk'],
+ ['2026-11-11','4. Kompozičná analýza · 6. Dendrologická analýza · 7. Analýza súčasného stavu · 8. Komplexný návrh riešeného územia','Ateliér z krajinného plánovania 3']
 ];
 function remindersHTML(){
   const list=REMINDERS.filter(r=>r[0]>=addDays(TODAY,-1)).sort((a,b)=>a[0]<b[0]?-1:1);
@@ -1442,4 +1443,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794078804"><script>(()=>{const B='1794078804';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794079856"><script>(()=>{const B='1794079856';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
