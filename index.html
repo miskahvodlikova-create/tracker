@@ -367,6 +367,11 @@ i.due{background:var(--pink)}
 .rdate b{font-family:var(--f-display);font-size:20px}.rdate span{font-size:11px;font-weight:800;text-transform:uppercase}
 .rbody{display:grid;gap:2px;min-width:0}.rbody span{font-size:13px;color:var(--muted)}
 .rwhen{font-size:12px;font-weight:800;color:var(--muted)}.rem.soon .rwhen{color:var(--pink)}
+.remw{position:relative;border-radius:14px;overflow:hidden}.remw .rem{position:relative;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab}
+.remdone{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;border-radius:14px;background:var(--mint);color:#282828;font-weight:800;font-size:14px}.remw.arm .remdone{background:var(--accent);color:var(--on-pink)}
+.rem.late{border-color:var(--tomato);background:var(--tomato);color:#fff}.rem.late .rbody span,.rem.late .rwhen{color:#fff}.rem.late .rdate{background:#fff;color:var(--tomato)}
+.latecount{color:var(--tomato)}
+.sform{display:grid;gap:8px;padding:10px;border-radius:14px;background:var(--sunk)}.sbtns{display:flex;gap:8px;justify-content:flex-end}
 .trow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
 .todos{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .todo{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 8px;border-radius:12px;background:var(--sunk)}
@@ -552,6 +557,14 @@ const HOLIDAYS={'2026-11-17':'State holiday','2026-12-24':'Christmas Eve','2026-
 /* sessions logged elsewhere (Hevy screenshots), merged in if that day is still empty */
 const LOGGED={};
 /* Kapkejkáreň hours from Michaelka's dochadzka.xlsx; the public build empties this (it comes from sync there) */
+const REMINDERS=[
+ ['2026-11-11','Prezentácia','Anglický jazyk'],
+ ['2026-11-11','4. Kompozičná analýza riešeného územia','Ateliér z krajinného plánovania 3'],
+ ['2026-11-11','6. Dendrologická analýza riešeného územia','Ateliér z krajinného plánovania 3'],
+ ['2026-11-11','7. Analýza súčasného stavu riešeného územia','Ateliér z krajinného plánovania 3'],
+ ['2026-11-11','8. Komplexný návrh riešeného územia','Ateliér z krajinného plánovania 3'],
+ ['2026-11-12','Prezentácia · 9:15','Ekológia']
+];
 const WORK_SEED={};
 const LOGGED_ACC={};
 const KEY='patrik-training-block-v1';
@@ -572,7 +585,7 @@ function migrate(){
   if(BUILT_DATA){S.health=HEALTH;S.cal=CAL_EVENTS}else{if(S.health)HEALTH=S.health;if(S.cal){CAL_EVENTS=S.cal;applyCalTimes()}}
   Object.keys(LOGGED).forEach(d=>{const c=S.sessions[d];if(!c||(!c.done&&!Object.keys(c.sets||{}).length))S.sessions[d]=JSON.parse(JSON.stringify(LOGGED[d]))});
   S.acc=S.acc||{};Object.keys(LOGGED_ACC).forEach(d=>{S.acc[d]=Object.assign({},LOGGED_ACC[d],S.acc[d]||{})});
-  S.todos=S.todos||{};S.work=S.work||{};Object.keys(WORK_SEED).forEach(d=>{S.work[d]=Object.assign({},WORK_SEED[d],S.work[d]&&S.work[d]._edited?S.work[d]:{})});
+  S.todos=S.todos||{};S.school=S.school||{};REMINDERS.forEach(r=>{const id='r'+r[0]+'|'+r[1];if(!S.school[id])S.school[id]={d:r[0],t:r[1],s:r[2]||'',done:false}});S.work=S.work||{};Object.keys(WORK_SEED).forEach(d=>{S.work[d]=Object.assign({},WORK_SEED[d],S.work[d]&&S.work[d]._edited?S.work[d]:{})});
   S.daily=S.daily||{};S.skills=S.skills||{};S.acc=S.acc||{};S.cycle=S.cycle||{days:{}};S.cycle.days=S.cycle.days||{};S.ny=S.ny||{intentions:['','','']};
   Object.keys(S.steps).forEach(d=>{if(S.steps[d]!==''&&S.steps[d]!=null){(S.daily[d]=S.daily[d]||{}).steps=+S.steps[d]}});S.steps={};
 }
@@ -1116,25 +1129,40 @@ function dayEvents(date){
   const hol=CAL_EVENTS.find(e=>e[0]===date&&e[3]==='holiday');
   if(hol)evs.unshift({t:'all day',n:hol[2],k:'holiday'});else if(HOLIDAYS[date])evs.unshift({t:'all day',n:HOLIDAYS[date],k:'holiday'});
   predictedPeriods(date,date).forEach(p=>{if(date>=p[0]&&date<=p[1])evs.push({t:'',n:p[2],k:'cycle'})});
-  REMINDERS.filter(r=>r[0]===date).forEach(r=>evs.unshift({t:'due',n:r[1]+(r[2]?' · '+r[2]:''),k:'due'}));
+  schoolList().filter(r=>r.d===date).forEach(r=>evs.unshift({t:'due',n:r.t+(r.s?' · '+r.s:''),k:'due'}));
   if(d>=4&&!s)evs.push({t:'all day',n:'No gym · 7,000+ steps',k:'off'});
   return evs;
 }
 /* ====== school reminders (added by Claude when Michaelka sends them) ====== */
-const REMINDERS=[
- ['2026-11-11','Prezentácia','Anglický jazyk'],
- ['2026-11-11','4. Kompozičná analýza riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-11-11','6. Dendrologická analýza riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-11-11','7. Analýza súčasného stavu riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-11-11','8. Komplexný návrh riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-11-12','Prezentácia · 9:15','Ekológia']
-];
+function schoolList(){const X=S.school||{};return Object.keys(X).filter(id=>!X[id].done).map(id=>Object.assign({id},X[id])).sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:(a.ts||0)-(b.ts||0))}
+let SCHADD=false;
 function remindersHTML(){
-  const list=REMINDERS.filter(r=>r[0]>=addDays(TODAY,-1)).sort((a,b)=>a[0]<b[0]?-1:1);
-  const box=r=>{const n=dayDiff(TODAY,r[0]),dd=new Date(r[0]+'T00:00:00Z'),when=n<0?'yesterday':n===0?'today':n===1?'tomorrow':'in '+n+' days';
-    return '<div class="rem'+(n<=1?' soon':'')+'"><div class="rdate"><b>'+dd.getUTCDate()+'</b><span>'+MONTHS[dd.getUTCMonth()].slice(0,3)+'</span></div><div class="rbody"><b>'+esc(r[1])+'</b><span>'+esc(r[2]||'')+'</span></div><span class="rwhen">'+when+'</span></div>'};
-  return '<section class="card stack side-rem"><div class="spread"><h3>School</h3><span class="small muted">'+list.length+' coming up</span></div>'+
-    (list.length?list.map(box).join(''):'<div class="small muted">Nothing due. Send Claude a new one, like "4.11. prezentácia".</div>')+'</section>';
+  const list=schoolList(),late=list.filter(r=>r.d<TODAY).length;
+  const box=r=>{const n=dayDiff(TODAY,r.d),dd=new Date(r.d+'T00:00:00Z'),when=n<-1?(-n)+' days late':n===-1?'1 day late':n===0?'today':n===1?'tomorrow':'in '+n+' days';
+    return '<div class="remw"><div class="remdone">✓ Done</div><div class="rem'+(n<0?' late':n<=1?' soon':'')+'" data-sid="'+esc(r.id)+'"><div class="rdate"><b>'+dd.getUTCDate()+'</b><span>'+MONTHS[dd.getUTCMonth()].slice(0,3)+'</span></div><div class="rbody"><b>'+esc(r.t)+'</b><span>'+esc(r.s||'')+'</span></div><span class="rwhen">'+when+'</span></div></div>'};
+  return '<section class="card stack side-rem"><div class="spread"><h3>School</h3><span class="small muted">'+(late?'<b class="latecount">'+late+' late</b> · ':'')+list.length+' open</span></div>'+
+    (list.length?list.map(box).join('')+'<div class="small muted">Swipe left when it’s done.</div>':'<div class="small muted">Nothing due.</div>')+
+    (SCHADD?'<form id="sform" class="sform"><input id="sdate" class="inp" type="date" required value="'+TODAY+'"><input id="stitle" class="inp" placeholder="What (e.g. Prezentácia 9:15)" autocomplete="off" required><input id="ssub" class="inp" placeholder="Subject" autocomplete="off"><div class="sbtns"><button type="button" class="btn sm" id="scancel">Cancel</button><button class="btn primary sm">Add</button></div></form>':'<button type="button" class="btn sm" id="sopen">+ Add to School</button>')+'</section>';
+}
+function bindSchool(root){
+  const q=sel=>root.querySelector(sel);
+  const o=q('#sopen');if(o)o.onclick=()=>{SCHADD=true;renderSides();const t=document.querySelector((isDesk()?'#col-left':'#calsides')+' #stitle');if(t)t.focus()};
+  const c=q('#scancel');if(c)c.onclick=()=>{SCHADD=false;renderSides()};
+  const f=q('#sform');if(f)f.onsubmit=e=>{e.preventDefault();const d=q('#sdate').value,t=q('#stitle').value.trim();if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!t)return;S.school=S.school||{};S.school['s'+Date.now().toString(36)+Math.random().toString(36).slice(2,5)]={d,t,s:q('#ssub').value.trim(),done:false,ts:Date.now()};SCHADD=false;save();renderSides()};
+  root.querySelectorAll('.rem[data-sid]').forEach(el=>{
+    let x0=null,y0=0,dx=0,lock=null;
+    const end=()=>{if(x0===null)return;x0=null;
+      if(dx<-Math.min(110,el.offsetWidth*.35)){el.style.transition='transform .2s ease';el.style.transform='translateX(-110%)';const w=el.parentNode;
+        setTimeout(()=>{w.style.transition='max-height .2s ease, opacity .2s';w.style.maxHeight=w.offsetHeight+'px';requestAnimationFrame(()=>{w.style.maxHeight='0';w.style.opacity='0'});
+          setTimeout(()=>{const x=S.school[el.dataset.sid];if(x){x.done=true;x.doneAt=Date.now()}save();renderSides()},220)},200)}
+      else{el.style.transition='transform .2s ease';el.style.transform=''}dx=0;lock=null};
+    el.addEventListener('pointerdown',e=>{if(e.button)return;x0=e.clientX;y0=e.clientY;dx=0;lock=null;el.style.transition='none'});
+    el.addEventListener('pointermove',e=>{if(x0===null)return;const ddx=e.clientX-x0,ddy=e.clientY-y0;
+      if(lock===null&&(Math.abs(ddx)>8||Math.abs(ddy)>8)){lock=Math.abs(ddx)>Math.abs(ddy)?'x':'y';if(lock==='x')try{el.setPointerCapture(e.pointerId)}catch(_){}}
+      if(lock==='y'){x0=null;el.style.transform='';return}
+      if(lock==='x'){dx=Math.min(0,ddx);el.style.transform='translateX('+dx+'px)';el.parentNode.classList.toggle('arm',dx<-Math.min(110,el.offsetWidth*.35))}});
+    el.addEventListener('pointerup',end);el.addEventListener('pointercancel',()=>{dx=0;end()});
+  });
 }
 /* ====== side panels: month calendar (left) + to-do (right) ====== */
 let MCAL=null,MSEL=TODAY,TODOSHOW=false;
@@ -1169,6 +1197,7 @@ function bindSides(root){
   root.querySelectorAll('[data-tt]').forEach(b=>b.onclick=()=>{const x=S.todos[b.dataset.tt];x.done=!x.done;save();renderSides()});
   root.querySelectorAll('[data-td]').forEach(b=>b.onclick=()=>{delete S.todos[b.dataset.td];save();renderSides()});
   const dt=q('#tdone');if(dt)dt.ontoggle=()=>{TODOSHOW=dt.open};
+  bindSchool(root);
 }
 function renderSides(focusTodo){
   const L=document.getElementById('col-left'),R=document.getElementById('col-month');
@@ -1370,7 +1399,7 @@ const dec=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),
 const hhmm=()=>new Date().toTimeString().slice(0,5);
 function setStatus(t){status=t;const el=document.getElementById('syncst');if(el)el.textContent=t}
 const BK='tracker-sync-base-v1';
-const DICTS=['sessions','food','acc','daily','skills','steps','todos','work'];
+const DICTS=['sessions','food','acc','daily','skills','steps','todos','work','school'];
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function pick(b,l,r,hasBase){if(eq(l,r))return l;if(!hasBase){if(r===undefined)return l;if(l===undefined)return r;return JSON.stringify(l).length>=JSON.stringify(r).length?l:r}if(eq(l,b))return r;if(eq(r,b))return l;return l}
 function mergeDict(b,l,r,hasBase){b=b||{};l=l||{};r=r||{};const o={};new Set([...Object.keys(l),...Object.keys(r)]).forEach(k=>{const v=pick(b[k],l[k],r[k],hasBase);if(v!==undefined)o[k]=v});return o}
@@ -1447,4 +1476,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794081127"><script>(()=>{const B='1794081127';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794081637"><script>(()=>{const B='1794081637';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
