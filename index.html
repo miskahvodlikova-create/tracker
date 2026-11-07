@@ -557,13 +557,14 @@ const HOLIDAYS={'2026-11-17':'State holiday','2026-12-24':'Christmas Eve','2026-
 /* sessions logged elsewhere (Hevy screenshots), merged in if that day is still empty */
 const LOGGED={};
 /* Kapkejkáreň hours from Michaelka's dochadzka.xlsx; the public build empties this (it comes from sync there) */
+const SCHOOL_DROP=['r2026-10-08|Stabilita svahu - Analytický výpočet'];
 const REMINDERS=[
  ['2026-11-11','Prezentácia','Anglický jazyk'],
  ['2026-11-11','4. Kompozičná analýza riešeného územia','Ateliér z krajinného plánovania 3'],
  ['2026-11-11','6. Dendrologická analýza riešeného územia','Ateliér z krajinného plánovania 3'],
  ['2026-11-11','7. Analýza súčasného stavu riešeného územia','Ateliér z krajinného plánovania 3'],
  ['2026-11-11','8. Komplexný návrh riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-10-08','Stabilita svahu - Analytický výpočet',''],
+ ['2026-11-19','Stabilita svahu - Analytický výpočet',''],
  ['2026-11-12','Prezentácia · 9:15','Ekológia']
 ];
 const WORK_SEED={};
@@ -586,7 +587,7 @@ function migrate(){
   if(BUILT_DATA){S.health=HEALTH;S.cal=CAL_EVENTS}else{if(S.health)HEALTH=S.health;if(S.cal){CAL_EVENTS=S.cal;applyCalTimes()}}
   Object.keys(LOGGED).forEach(d=>{const c=S.sessions[d];if(!c||(!c.done&&!Object.keys(c.sets||{}).length))S.sessions[d]=JSON.parse(JSON.stringify(LOGGED[d]))});
   S.acc=S.acc||{};Object.keys(LOGGED_ACC).forEach(d=>{S.acc[d]=Object.assign({},LOGGED_ACC[d],S.acc[d]||{})});
-  S.todos=S.todos||{};S.school=S.school||{};REMINDERS.forEach(r=>{const id='r'+r[0]+'|'+r[1];if(!S.school[id])S.school[id]={d:r[0],t:r[1],s:r[2]||'',done:false}});S.work=S.work||{};Object.keys(WORK_SEED).forEach(d=>{S.work[d]=Object.assign({},WORK_SEED[d],S.work[d]&&S.work[d]._edited?S.work[d]:{})});
+  S.todos=S.todos||{};S.school=S.school||{};REMINDERS.forEach(r=>{const id='r'+r[0]+'|'+r[1];if(!S.school[id])S.school[id]={d:r[0],t:r[1],s:r[2]||'',done:false}});SCHOOL_DROP.forEach(id=>{if(S.school[id])S.school[id].done=true});S.work=S.work||{};Object.keys(WORK_SEED).forEach(d=>{S.work[d]=Object.assign({},WORK_SEED[d],S.work[d]&&S.work[d]._edited?S.work[d]:{})});
   S.daily=S.daily||{};S.skills=S.skills||{};S.acc=S.acc||{};S.cycle=S.cycle||{days:{}};S.cycle.days=S.cycle.days||{};S.ny=S.ny||{intentions:['','','']};
   Object.keys(S.steps).forEach(d=>{if(S.steps[d]!==''&&S.steps[d]!=null){(S.daily[d]=S.daily[d]||{}).steps=+S.steps[d]}});S.steps={};
 }
@@ -1477,4 +1478,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794083777"><script>(()=>{const B='1794083777';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794083850"><script>(()=>{const B='1794083850';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
