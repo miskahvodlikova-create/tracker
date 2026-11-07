@@ -305,7 +305,7 @@ button,input,label,.chk{touch-action:manipulation}
 .field input,.inp,textarea,.addform input{font-size:16px}
 .tab svg{width:20px;height:20px;display:none}
 @media (max-width:560px){
-  .tabs{position:fixed;top:auto;bottom:0;left:0;right:0;margin:0;z-index:15;grid-template-columns:repeat(6,1fr);gap:2px;background:var(--surface);border-top:2px solid var(--line);
+  .tabs{position:fixed;top:auto;bottom:0;left:0;right:0;margin:0;z-index:15;grid-template-columns:repeat(7,1fr);gap:2px;background:var(--surface);border-top:2px solid var(--line);
     padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
   .tab{border:0;background:transparent;border-radius:12px;padding:5px 0 4px;display:grid;justify-items:center;gap:1px;font-size:10.5px;color:var(--muted)}
   .tab svg{display:block}
@@ -329,7 +329,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
 @media (min-width:1080px){
   .desk-only{display:revert!important}.mob-only{display:none!important}
   .wrap{max-width:none;padding-left:28px;padding-right:28px;padding-bottom:60px}
-  .tabs{grid-template-columns:repeat(4,1fr);max-width:none}
+  .tabs{grid-template-columns:repeat(5,1fr);max-width:none}
   #calsides{display:none}
   .dgrid{display:grid;grid-template-columns:minmax(250px,310px) minmax(0,1fr) minmax(270px,330px);gap:22px;align-items:start}
   .dgrid>aside.dcol{display:grid!important;gap:14px;align-content:start;min-width:0}
@@ -340,6 +340,16 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
   .stickycol{position:sticky;top:16px}
 }
 @media (min-width:1700px){.gridT{grid-template-columns:minmax(260px,320px) minmax(0,1fr)}}
+.wk-row{display:grid;grid-template-columns:44px repeat(4,minmax(0,1fr)) 64px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
+.wk-row.head{font-size:11px;font-weight:800;color:var(--muted);border-bottom:2px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:1}
+.wk-row .d{font-family:var(--f-mono);font-size:13px}.wk-row .d small{display:block;color:var(--muted);font-size:10px}
+.wk-row.we .d{color:var(--muted)}.wk-row.today .d b{color:var(--pink)}
+.wk-row input{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--sunk);padding:6px 4px;font-family:var(--f-mono);font-size:14px;color:var(--ink)}
+.wk-row input:not(:placeholder-shown),.wk-row input.has{background:var(--surface);border-color:var(--twilight)}
+.wk-row .h{font-family:var(--f-mono);font-size:12px;text-align:right}.wk-row .h small{display:block;color:var(--muted)}
+.wk-grp{display:grid;grid-template-columns:44px 1fr 1fr 64px;gap:6px;font-size:11px;font-weight:800;color:var(--muted)}
+.wk-tot{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.wk-tot div{background:var(--sunk);border-radius:12px;padding:10px}.wk-tot b{display:block;font-family:var(--f-mono);font-size:18px}
+@media (max-width:560px){.wk-row{grid-template-columns:34px repeat(4,minmax(0,1fr)) 50px;gap:4px}.wk-grp{grid-template-columns:34px 1fr 1fr 50px;gap:4px}.wk-row input{font-size:16px;padding:6px 2px}}
 .mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
 .mhead span{font-size:12px;font-weight:800;color:var(--muted)}
 .mday{border:2px solid transparent;background:var(--sunk);border-radius:10px;padding:4px 0 3px;min-width:0;display:grid;gap:2px;justify-items:center;font-size:14px}
@@ -390,6 +400,7 @@ i.due{background:var(--pink)}
     <button class="tab mob-only" role="tab" data-v="health"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Health</span></button>
     <button class="tab mob-only" role="tab" data-v="food"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M16 3c-2 2-2 6 0 8v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Food</span></button>
     <button class="tab mob-only" role="tab" data-v="calendar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v14H4zM4 11h16M8 4v4M16 4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Calendar</span></button>
+    <button class="tab" role="tab" data-v="work"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16v11H4zM9 8V5h6v3M4 13h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Work</span></button>
   </nav>
   <div class="dgrid"><aside id="col-left" class="desk-only dcol stickycol"></aside><main id="view"></main><aside id="col-month" class="desk-only dcol stickycol"></aside></div>
 </div>
@@ -539,6 +550,8 @@ const HOLIDAYS={'2026-11-17':'State holiday','2026-12-24':'Christmas Eve','2026-
 /* ====== state ====== */
 /* sessions logged elsewhere (Hevy screenshots), merged in if that day is still empty */
 const LOGGED={};
+/* Kapkejkáreň hours from Michaelka's dochadzka.xlsx; the public build empties this (it comes from sync there) */
+const WORK_SEED={};
 const LOGGED_ACC={};
 const KEY='patrik-training-block-v1';
 function seed(){
@@ -558,7 +571,7 @@ function migrate(){
   if(BUILT_DATA){S.health=HEALTH;S.cal=CAL_EVENTS}else{if(S.health)HEALTH=S.health;if(S.cal){CAL_EVENTS=S.cal;applyCalTimes()}}
   Object.keys(LOGGED).forEach(d=>{const c=S.sessions[d];if(!c||(!c.done&&!Object.keys(c.sets||{}).length))S.sessions[d]=JSON.parse(JSON.stringify(LOGGED[d]))});
   S.acc=S.acc||{};Object.keys(LOGGED_ACC).forEach(d=>{S.acc[d]=Object.assign({},LOGGED_ACC[d],S.acc[d]||{})});
-  S.todos=S.todos||{};
+  S.todos=S.todos||{};S.work=S.work||{};Object.keys(WORK_SEED).forEach(d=>{if(!S.work[d])S.work[d]=WORK_SEED[d]});
   S.daily=S.daily||{};S.skills=S.skills||{};S.acc=S.acc||{};S.cycle=S.cycle||{days:{}};S.cycle.days=S.cycle.days||{};S.ny=S.ny||{intentions:['','','']};
   Object.keys(S.steps).forEach(d=>{if(S.steps[d]!==''&&S.steps[d]!=null){(S.daily[d]=S.daily[d]||{}).steps=+S.steps[d]}});S.steps={};
 }
@@ -1257,8 +1270,45 @@ function burst(){
 /* ====== routing ====== */
 function renderTraining(){$('#view').innerHTML='<div class="gridT"><div class="col stickycol" id="col-badges"></div><div class="col" id="col-plan"></div></div>';renderPlan()}
 function renderHF(){$('#view').innerHTML='<div class="grid2"><div class="col" id="col-health"></div><div class="col" id="col-food"></div></div>';renderHealth();renderFood()}
+const RATE={bake:9,sell:7};
+let WMON=null;
+const tmin=t=>{if(!t)return null;const m=/^(\d{1,2})[:.](\d{2})$/.exec(String(t).trim());return m?+m[1]*60+ +m[2]:null};
+const span=(a,b)=>{const x=tmin(a),y=tmin(b);if(x==null||y==null)return 0;let d=y-x;if(d<0)d+=1440;return d/60};
+function workDay(w){w=w||{};const bake=span(w.bi,w.bo),sell=span(w.si,w.so);return {bake,sell,eur:bake*RATE.bake+sell*RATE.sell}}
+function workTotals(filter){let bake=0,sell=0,days=0;Object.entries(S.work||{}).forEach(([d,w])=>{if(filter&&!filter(d))return;const x=workDay(w);if(x.bake||x.sell)days++;bake+=x.bake;sell+=x.sell});return {bake,sell,days,eur:bake*RATE.bake+sell*RATE.sell}}
+const fh=h=>{const m=Math.round(h*60);return Math.floor(m/60)+':'+String(m%60).padStart(2,'0')};
+const feur=e=>(Math.round(e*100)/100).toFixed(2).replace('.',',')+' €';
+function renderWork(){
+  if(!WMON)WMON=TODAY.slice(0,7);
+  const [y,m]=WMON.split('-').map(Number),n=new Date(Date.UTC(y,m,0)).getUTCDate();
+  const mname=new Date(Date.UTC(y,m-1,1)).toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
+  const W=S.work||{};let rows='';
+  for(let i=1;i<=n;i++){const d=WMON+'-'+String(i).padStart(2,'0'),w=W[d]||{},x=workDay(w),dow=new Date(d+'T12:00:00Z').getUTCDay();
+    const inp=(k,ph)=>'<input type="text" inputmode="numeric" maxlength="5" placeholder="'+ph+'" data-wd="'+d+'" data-wk="'+k+'" value="'+esc(w[k]||'')+'" aria-label="'+d+' '+k+'">';
+    rows+='<div class="wk-row'+(dow===0||dow===6?' we':'')+(d===TODAY?' today':'')+'"><div class="d"><b>'+i+'.</b><small>'+['Su','Mo','Tu','We','Th','Fr','Sa'][dow]+'</small></div>'+
+      inp('bi','–:–')+inp('bo','–:–')+inp('si','–:–')+inp('so','–:–')+
+      '<div class="h" data-wh="'+d+'">'+(x.bake||x.sell?fh(x.bake+x.sell)+' h<small>'+feur(x.eur)+'</small>':'')+'</div></div>'}
+  const mt=workTotals(d=>d.startsWith(WMON)),all=workTotals();
+  $('#view').innerHTML='<div class="stack"><section class="card stack"><div class="spread"><button class="btn sm ghost" id="wprev">‹</button><h2>'+mname+'</h2><button class="btn sm ghost" id="wnext">›</button></div>'+
+    '<div class="small muted">Kapkejkáreň. Type times like 6:20. Baking '+RATE.bake+' €/h, selling '+RATE.sell+' €/h. Saves automatically.</div>'+
+    '<div><div class="wk-grp"><span></span><span>Baking</span><span>Selling</span><span></span></div>'+
+    '<div class="wk-row head"><span>Day</span><span>in</span><span>out</span><span>in</span><span>out</span><span style="text-align:right">total</span></div>'+rows+'</div></section>'+
+    '<section class="card stack" id="wtot"></section></div>';
+  const tot=()=>{const mt=workTotals(d=>d.startsWith(WMON)),all=workTotals();
+    $('#wtot').innerHTML='<h3>'+mname+'</h3><div class="wk-tot"><div><span class="small muted">Baking</span><b>'+fh(mt.bake)+' h</b><span class="small">'+feur(mt.bake*RATE.bake)+'</span></div><div><span class="small muted">Selling</span><b>'+fh(mt.sell)+' h</b><span class="small">'+feur(mt.sell*RATE.sell)+'</span></div><div><span class="small muted">Total · '+mt.days+' days</span><b>'+fh(mt.bake+mt.sell)+' h</b><span class="small"><b style="display:inline;font-size:15px">'+feur(mt.eur)+'</b></span></div></div>'+
+      '<div class="spread" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Earned so far</b> <span class="small muted">· all months · '+all.days+' days · '+fh(all.bake+all.sell)+' h</span></span><b class="mono" style="font-size:20px">'+feur(all.eur)+'</b></div>'};
+  tot();
+  $('#wprev').onclick=()=>{const dt=new Date(Date.UTC(y,m-2,1));WMON=dt.toISOString().slice(0,7);renderWork()};
+  $('#wnext').onclick=()=>{const dt=new Date(Date.UTC(y,m,1));WMON=dt.toISOString().slice(0,7);renderWork()};
+  $('#view').querySelectorAll('[data-wd]').forEach(el=>{
+    el.oninput=()=>{const d=el.dataset.wd,k=el.dataset.wk;let v=el.value.replace(/[^0-9:.]/g,'');if(/^\d{3,4}$/.test(v))v=v.slice(0,-2)+':'+v.slice(-2);
+      S.work=S.work||{};const w=Object.assign({},S.work[d]||{});if(tmin(v)!=null)w[k]=v.replace('.',':');else if(!v)delete w[k];else return;
+      if(Object.keys(w).length)S.work[d]=w;else delete S.work[d];save();
+      const x=workDay(w),c=$('#view').querySelector('[data-wh="'+d+'"]');c.innerHTML=x.bake||x.sell?fh(x.bake+x.sell)+' h<small>'+feur(x.eur)+'</small>':'';tot()};
+    el.onblur=()=>{const w=(S.work||{})[el.dataset.wd]||{};el.value=w[el.dataset.wk]||''}});
+}
 const DESK_ONLY={training:1,hf:1},MOB_ONLY={plan:'training',health:'hf',food:'hf',calendar:'workout'};
-const VIEWS={training:renderTraining,hf:renderHF,workout:renderWorkout,plan:renderPlan,skills:renderSkills,health:renderHealth,food:renderFood,calendar:renderCalendar,newyear:renderNewYear};
+const VIEWS={work:renderWork,training:renderTraining,hf:renderHF,workout:renderWorkout,plan:renderPlan,skills:renderSkills,health:renderHealth,food:renderFood,calendar:renderCalendar,newyear:renderNewYear};
 function setView(v){
   if(!VIEWS[v])v='workout';
   if(isDesk()&&MOB_ONLY[v])v=MOB_ONLY[v];if(!isDesk()&&DESK_ONLY[v])v=v==='hf'?'health':'plan';
@@ -1295,7 +1345,7 @@ const dec=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),
 const hhmm=()=>new Date().toTimeString().slice(0,5);
 function setStatus(t){status=t;const el=document.getElementById('syncst');if(el)el.textContent=t}
 const BK='tracker-sync-base-v1';
-const DICTS=['sessions','food','acc','daily','skills','steps','todos'];
+const DICTS=['sessions','food','acc','daily','skills','steps','todos','work'];
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 function pick(b,l,r,hasBase){if(eq(l,r))return l;if(!hasBase){if(r===undefined)return l;if(l===undefined)return r;return JSON.stringify(l).length>=JSON.stringify(r).length?l:r}if(eq(l,b))return r;if(eq(r,b))return l;return l}
 function mergeDict(b,l,r,hasBase){b=b||{};l=l||{};r=r||{};const o={};new Set([...Object.keys(l),...Object.keys(r)]).forEach(k=>{const v=pick(b[k],l[k],r[k],hasBase);if(v!==undefined)o[k]=v});return o}
@@ -1372,4 +1422,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794055835"><script>(()=>{const B='1794055835';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794077896"><script>(()=>{const B='1794077896';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
