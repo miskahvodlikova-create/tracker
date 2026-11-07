@@ -340,16 +340,17 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
   .stickycol{position:sticky;top:16px}
 }
 @media (min-width:1700px){.gridT{grid-template-columns:minmax(260px,320px) minmax(0,1fr)}}
-.wk-row{display:grid;grid-template-columns:44px repeat(4,minmax(0,1fr)) 64px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
+.wk-row{display:grid;grid-template-columns:44px repeat(4,minmax(0,1fr)) 64px 28px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
 .wk-row.head{font-size:11px;font-weight:800;color:var(--muted);border-bottom:2px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:1}
 .wk-row .d{font-family:var(--f-mono);font-size:13px}.wk-row .d small{display:block;color:var(--muted);font-size:10px}
 .wk-row.we .d{color:var(--muted)}.wk-row.today .d b{color:var(--pink)}
 .wk-row input{width:100%;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--sunk);padding:6px 4px;font-family:var(--f-mono);font-size:14px;color:var(--ink)}
 .wk-row input:not(:placeholder-shown),.wk-row input.has{background:var(--surface);border-color:var(--twilight)}
 .wk-row .h{font-family:var(--f-mono);font-size:12px;text-align:right}.wk-row .h small{display:block;color:var(--muted)}
-.wk-grp{display:grid;grid-template-columns:44px 1fr 1fr 64px;gap:6px;font-size:11px;font-weight:800;color:var(--muted)}
+.wk-grp{display:grid;grid-template-columns:44px 1fr 1fr 92px;gap:6px;font-size:11px;font-weight:800;color:var(--muted)}
 .wk-tot{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.wk-tot div{background:var(--sunk);border-radius:12px;padding:10px}.wk-tot b{display:block;font-family:var(--f-mono);font-size:18px}
-@media (max-width:560px){.wk-row{grid-template-columns:34px repeat(4,minmax(0,1fr)) 50px;gap:4px}.wk-grp{grid-template-columns:34px 1fr 1fr 50px;gap:4px}.wk-row input{font-size:16px;padding:6px 2px}}
+.wk-del{border:0;background:transparent;color:var(--muted);font-size:18px;padding:0;width:28px;height:28px;border-radius:8px}
+@media (max-width:560px){.wk-row{grid-template-columns:24px repeat(4,minmax(0,1fr)) 40px 18px;gap:3px}.wk-del{width:18px}.wk-grp{grid-template-columns:24px 1fr 1fr 64px;gap:3px}.wk-row input{font-size:16px;padding:6px 0;text-align:center;letter-spacing:-.04em}.wk-row .h{font-size:11px}.wk-row .h small{font-size:10px}.wk-row .d{font-size:12px}}
 .mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
 .mhead span{font-size:12px;font-weight:800;color:var(--muted)}
 .mday{border:2px solid transparent;background:var(--sunk);border-radius:10px;padding:4px 0 3px;min-width:0;display:grid;gap:2px;justify-items:center;font-size:14px}
@@ -1283,28 +1284,34 @@ function renderWork(){
   const [y,m]=WMON.split('-').map(Number),n=new Date(Date.UTC(y,m,0)).getUTCDate();
   const mname=new Date(Date.UTC(y,m-1,1)).toLocaleDateString('en-GB',{month:'long',year:'numeric',timeZone:'UTC'});
   const W=S.work||{};let rows='';
-  for(let i=1;i<=n;i++){const d=WMON+'-'+String(i).padStart(2,'0'),w=W[d]||{},x=workDay(w),dow=new Date(d+'T12:00:00Z').getUTCDay();
+  const days=Object.keys(W).filter(d=>d.startsWith(WMON)).sort();
+  days.forEach(d=>{const i=+d.slice(8),w=W[d]||{},x=workDay(w),dow=new Date(d+'T12:00:00Z').getUTCDay();
     const inp=(k,ph)=>'<input type="text" inputmode="numeric" maxlength="5" placeholder="'+ph+'" data-wd="'+d+'" data-wk="'+k+'" value="'+esc(w[k]||'')+'" aria-label="'+d+' '+k+'">';
     rows+='<div class="wk-row'+(dow===0||dow===6?' we':'')+(d===TODAY?' today':'')+'"><div class="d"><b>'+i+'.</b><small>'+['Su','Mo','Tu','We','Th','Fr','Sa'][dow]+'</small></div>'+
       inp('bi','–:–')+inp('bo','–:–')+inp('si','–:–')+inp('so','–:–')+
-      '<div class="h" data-wh="'+d+'">'+(x.bake||x.sell?fh(x.bake+x.sell)+' h<small>'+feur(x.eur)+'</small>':'')+'</div></div>'}
+      '<div class="h" data-wh="'+d+'">'+(x.bake||x.sell?fh(x.bake+x.sell)+'<small>'+feur(x.eur)+'</small>':'')+'</div><button class="wk-del" data-wdel="'+d+'" aria-label="Remove day">×</button></div>'});
+  if(!days.length)rows='<div class="small muted" style="padding:10px 0">No days yet this month. Add one below.</div>';
+  const defd=WMON===TODAY.slice(0,7)?TODAY:WMON+'-01';
   const mt=workTotals(d=>d.startsWith(WMON)),all=workTotals();
   $('#view').innerHTML='<div class="stack"><section class="card stack"><div class="spread"><button class="btn sm ghost" id="wprev">‹</button><h2>'+mname+'</h2><button class="btn sm ghost" id="wnext">›</button></div>'+
     '<div class="small muted">Kapkejkáreň. Type times like 6:20. Baking '+RATE.bake+' €/h, selling '+RATE.sell+' €/h. Saves automatically.</div>'+
     '<div><div class="wk-grp"><span></span><span>Baking</span><span>Selling</span><span></span></div>'+
-    '<div class="wk-row head"><span>Day</span><span>in</span><span>out</span><span>in</span><span>out</span><span style="text-align:right">total</span></div>'+rows+'</div></section>'+
+    '<div class="wk-row head"><span>Day</span><span>in</span><span>out</span><span>in</span><span>out</span><span style="text-align:right">total</span><span></span></div>'+rows+'</div>'+
+    '<form class="row" id="wadd" style="gap:8px;flex-wrap:wrap"><input type="date" class="inp" id="wdate" value="'+defd+'" style="flex:1;min-width:150px"><button class="btn pink" type="submit">+ Add day</button></form></section>'+
     '<section class="card stack" id="wtot"></section></div>';
   const tot=()=>{const mt=workTotals(d=>d.startsWith(WMON)),all=workTotals();
     $('#wtot').innerHTML='<h3>'+mname+'</h3><div class="wk-tot"><div><span class="small muted">Baking</span><b>'+fh(mt.bake)+' h</b><span class="small">'+feur(mt.bake*RATE.bake)+'</span></div><div><span class="small muted">Selling</span><b>'+fh(mt.sell)+' h</b><span class="small">'+feur(mt.sell*RATE.sell)+'</span></div><div><span class="small muted">Total · '+mt.days+' days</span><b>'+fh(mt.bake+mt.sell)+' h</b><span class="small"><b style="display:inline;font-size:15px">'+feur(mt.eur)+'</b></span></div></div>'+
       '<div class="spread" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Earned so far</b> <span class="small muted">· all months · '+all.days+' days · '+fh(all.bake+all.sell)+' h</span></span><b class="mono" style="font-size:20px">'+feur(all.eur)+'</b></div>'};
   tot();
+  $('#wadd').onsubmit=e=>{e.preventDefault();const d=$('#wdate').value;if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return;S.work=S.work||{};if(!S.work[d])S.work[d]={};save();WMON=d.slice(0,7);renderWork();const f=$('#view').querySelector('[data-wd="'+d+'"]');if(f)f.focus()};
+  $('#view').querySelectorAll('[data-wdel]').forEach(b=>b.onclick=()=>{const d=b.dataset.wdel,w=(S.work||{})[d]||{};if(Object.keys(w).length&&!confirm('Remove '+d+'?'))return;delete S.work[d];save();renderWork()});
   $('#wprev').onclick=()=>{const dt=new Date(Date.UTC(y,m-2,1));WMON=dt.toISOString().slice(0,7);renderWork()};
   $('#wnext').onclick=()=>{const dt=new Date(Date.UTC(y,m,1));WMON=dt.toISOString().slice(0,7);renderWork()};
   $('#view').querySelectorAll('[data-wd]').forEach(el=>{
     el.oninput=()=>{const d=el.dataset.wd,k=el.dataset.wk;let v=el.value.replace(/[^0-9:.]/g,'');if(/^\d{3,4}$/.test(v))v=v.slice(0,-2)+':'+v.slice(-2);
       S.work=S.work||{};const w=Object.assign({},S.work[d]||{});if(tmin(v)!=null)w[k]=v.replace('.',':');else if(!v)delete w[k];else return;
-      if(Object.keys(w).length)S.work[d]=w;else delete S.work[d];save();
-      const x=workDay(w),c=$('#view').querySelector('[data-wh="'+d+'"]');c.innerHTML=x.bake||x.sell?fh(x.bake+x.sell)+' h<small>'+feur(x.eur)+'</small>':'';tot()};
+      S.work[d]=w;save();
+      const x=workDay(w),c=$('#view').querySelector('[data-wh="'+d+'"]');c.innerHTML=x.bake||x.sell?fh(x.bake+x.sell)+'<small>'+feur(x.eur)+'</small>':'';tot()};
     el.onblur=()=>{const w=(S.work||{})[el.dataset.wd]||{};el.value=w[el.dataset.wk]||''}});
 }
 const DESK_ONLY={training:1,hf:1},MOB_ONLY={plan:'training',health:'hf',food:'hf',calendar:'workout'};
@@ -1422,4 +1429,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794077896"><script>(()=>{const B='1794077896';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794078035"><script>(()=>{const B='1794078035';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
