@@ -1298,11 +1298,24 @@ function renderWork(){
     '<div><div class="wk-grp"><span></span><span>Baking</span><span>Selling</span><span></span></div>'+
     '<div class="wk-row head"><span>Day</span><span>in</span><span>out</span><span>in</span><span>out</span><span style="text-align:right">total</span><span></span></div>'+rows+'</div>'+
     '<form class="row" id="wadd" style="gap:8px;flex-wrap:wrap"><input type="date" class="inp" id="wdate" value="'+defd+'" style="flex:1;min-width:150px"><button class="btn pink" type="submit">+ Add day</button></form></section>'+
-    '<section class="card stack" id="wtot"></section></div>';
+    '<section class="card stack" id="wtot"></section><section class="card stack" id="wchart"></section></div>';
   const tot=()=>{const mt=workTotals(d=>d.startsWith(WMON)),all=workTotals();
     $('#wtot').innerHTML='<h3>'+mname+'</h3><div class="wk-tot"><div><span class="small muted">Baking</span><b>'+fh(mt.bake)+' h</b><span class="small">'+feur(mt.bake*RATE.bake)+'</span></div><div><span class="small muted">Selling</span><b>'+fh(mt.sell)+' h</b><span class="small">'+feur(mt.sell*RATE.sell)+'</span></div><div><span class="small muted">Total · '+mt.days+' days</span><b>'+fh(mt.bake+mt.sell)+' h</b><span class="small"><b style="display:inline;font-size:15px">'+feur(mt.eur)+'</b></span></div></div>'+
       '<div class="spread" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Earned so far</b> <span class="small muted">· all months · '+all.days+' days · '+fh(all.bake+all.sell)+' h</span></span><b class="mono" style="font-size:20px">'+feur(all.eur)+'</b></div>'};
-  tot();
+  const chart=()=>{const now=TODAY.slice(0,7),[cy,cm]=now.split('-').map(Number),ms=[];
+    for(let k=5;k>=0;k--){const dt=new Date(Date.UTC(cy,cm-1-k,1)),key=dt.toISOString().slice(0,7),t=workTotals(d=>d.startsWith(key));
+      ms.push({key,lab:dt.toLocaleDateString('en-GB',{month:'short',timeZone:'UTC'}),b:t.bake*RATE.bake,s:t.sell*RATE.sell,eur:t.eur})}
+    const max=Math.max(50,...ms.map(x=>x.eur)),W=600,H=220,top=26,bot=28,bw=56,gap=(W-ms.length*bw)/(ms.length+1),sc=v=>(H-top-bot)*v/max;
+    let g='<line x1="0" x2="'+W+'" y1="'+(H-bot)+'" y2="'+(H-bot)+'" stroke="var(--line)"/>';
+    ms.forEach((x,i)=>{const X=gap+i*(bw+gap),hb=sc(x.b),hs=sc(x.s),y0=H-bot;
+      g+='<rect x="'+X+'" y="'+(y0-hb)+'" width="'+bw+'" height="'+hb+'" rx="3" fill="var(--twilight)"><title>Baking '+feur(x.b)+'</title></rect>'+
+        '<rect x="'+X+'" y="'+(y0-hb-hs)+'" width="'+bw+'" height="'+hs+'" rx="3" fill="var(--lav)"><title>Selling '+feur(x.s)+'</title></rect>'+
+        (x.eur?'<text x="'+(X+bw/2)+'" y="'+(y0-hb-hs-7)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">'+Math.round(x.eur)+' €</text>':'')+
+        '<text x="'+(X+bw/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="12" fill="var(--muted)"'+(x.key===WMON?' font-weight="800"':'')+'>'+x.lab+'</text>'});
+    const sum=ms.reduce((a,x)=>a+x.eur,0);
+    $('#wchart').innerHTML='<div class="spread"><h3>Last 6 months</h3><b class="mono">'+feur(sum)+'</b></div><svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Earnings per month, last 6 months">'+g+'</svg>'+
+      '<div class="mlegend"><span><i style="--mc:var(--twilight)"></i>baking</span><span><i style="--mc:var(--lav)"></i>selling</span></div>'};
+  tot();chart();
   $('#wadd').onsubmit=e=>{e.preventDefault();const d=$('#wdate').value;if(!/^\d{4}-\d{2}-\d{2}$/.test(d))return;S.work=S.work||{};if(!S.work[d])S.work[d]={};save();WMON=d.slice(0,7);renderWork();const f=$('#view').querySelector('[data-wd="'+d+'"]');if(f)f.focus()};
   $('#view').querySelectorAll('[data-wdel]').forEach(b=>b.onclick=()=>{const d=b.dataset.wdel,w=(S.work||{})[d]||{};if(Object.keys(w).length&&!confirm('Remove '+d+'?'))return;delete S.work[d];save();renderWork()});
   $('#wprev').onclick=()=>{const dt=new Date(Date.UTC(y,m-2,1));WMON=dt.toISOString().slice(0,7);renderWork()};
@@ -1311,7 +1324,7 @@ function renderWork(){
     el.oninput=()=>{const d=el.dataset.wd,k=el.dataset.wk;let v=el.value.replace(/[^0-9:.]/g,'');if(/^\d{3,4}$/.test(v))v=v.slice(0,-2)+':'+v.slice(-2);
       S.work=S.work||{};const w=Object.assign({},S.work[d]||{});if(tmin(v)!=null)w[k]=v.replace('.',':');else if(!v)delete w[k];else return;
       S.work[d]=w;save();
-      const x=workDay(w),c=$('#view').querySelector('[data-wh="'+d+'"]');c.innerHTML=x.bake||x.sell?fh(x.bake+x.sell)+'<small>'+feur(x.eur)+'</small>':'';tot()};
+      const x=workDay(w),c=$('#view').querySelector('[data-wh="'+d+'"]');c.innerHTML=x.bake||x.sell?fh(x.bake+x.sell)+'<small>'+feur(x.eur)+'</small>':'';tot();chart()};
     el.onblur=()=>{const w=(S.work||{})[el.dataset.wd]||{};el.value=w[el.dataset.wk]||''}});
 }
 const DESK_ONLY={training:1,hf:1},MOB_ONLY={plan:'training',health:'hf',food:'hf',calendar:'workout'};
@@ -1429,4 +1442,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794078556"><script>(()=>{const B='1794078556';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794078804"><script>(()=>{const B='1794078804';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
