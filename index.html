@@ -572,7 +572,7 @@ function migrate(){
   if(BUILT_DATA){S.health=HEALTH;S.cal=CAL_EVENTS}else{if(S.health)HEALTH=S.health;if(S.cal){CAL_EVENTS=S.cal;applyCalTimes()}}
   Object.keys(LOGGED).forEach(d=>{const c=S.sessions[d];if(!c||(!c.done&&!Object.keys(c.sets||{}).length))S.sessions[d]=JSON.parse(JSON.stringify(LOGGED[d]))});
   S.acc=S.acc||{};Object.keys(LOGGED_ACC).forEach(d=>{S.acc[d]=Object.assign({},LOGGED_ACC[d],S.acc[d]||{})});
-  S.todos=S.todos||{};S.work=S.work||{};Object.keys(WORK_SEED).forEach(d=>{if(!S.work[d])S.work[d]=WORK_SEED[d]});
+  S.todos=S.todos||{};S.work=S.work||{};Object.keys(WORK_SEED).forEach(d=>{S.work[d]=Object.assign({},WORK_SEED[d],S.work[d]&&S.work[d]._edited?S.work[d]:{})});
   S.daily=S.daily||{};S.skills=S.skills||{};S.acc=S.acc||{};S.cycle=S.cycle||{days:{}};S.cycle.days=S.cycle.days||{};S.ny=S.ny||{intentions:['','','']};
   Object.keys(S.steps).forEach(d=>{if(S.steps[d]!==''&&S.steps[d]!=null){(S.daily[d]=S.daily[d]||{}).steps=+S.steps[d]}});S.steps={};
 }
@@ -1429,4 +1429,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794078035"><script>(()=>{const B='1794078035';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794078556"><script>(()=>{const B='1794078556';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
