@@ -471,6 +471,7 @@ for(let i=0;i<16;i++){
   const w={n:i+1,start:addDays('2026-11-02',i*7),block:b,wib,deload:wib===4,run:RUNS[i],
     c:wib===4?'--dl':b.c,t:wib===4?'--dlt':b.t,note:PHASE[wib-1]};
   if(i===0)w.note='Fresh start after 5 months off. RPE 6–7: finish each set with 3–4 reps still in the tank.';
+  if(i===1)w.note='RPE 7: finish each set with 2–3 reps left, no failure. Slept under 5 h? Only the first two exercises at last week\'s weights. 5–6 h? 2 sets of everything.';
   if(i===7)w.note+=' Christmas week too, so Thursday is optional.';
   if(i===8)w.note='Holiday week. Block 3 starts, new exercises are tagged. New Year\'s Eve session is optional.';
   WEEKS.push(w);
@@ -500,6 +501,7 @@ const EX={
  plank:{name:'Plank',bw:true,easier:'Knees down',harder:'Lift one foot',cue:'Squeeze glutes, push the floor away'},
  cablerow:{name:'Cable row',easier:'Lighter',harder:'Pause at the torso',cue:"Don't lean back to move the weight"},
  oblique:{name:'Oblique leg raise',sub:'hanging, knees to each side',bw:true,easier:'Lying, knees bent',harder:'Straighter legs',cue:'Slow, no swinging'},
+ inclinedb:{name:'Incline dumbbell press',easier:'6 kg',harder:'3 s lowering',cue:'Shoulder blades pinned'},
  reardelt:{name:'Rear delt fly',easier:'Lighter',harder:'Pause 1 s at the top',cue:'Lead with the elbows, not the hands'}
 };
 const I=(ex,sets,reps,rest,o)=>Object.assign({ex,sets,reps,rest},o||{});
@@ -514,6 +516,10 @@ const META={lowerA:{name:'Lower A',kind:'lower',run:false},upperA:{name:'Upper A
 const TPL_ITEMS={
  'xfullQ':[I('legpress',2,'12',90,{tag:'A1',first:true,start:'Light: a weight you could do 15+ times'}),I('pulldown',2,'12',90,{tag:'A2',target:30}),I('abd',2,'20',60,{tag:'B1',target:30,start:'30–40 kg'}),I('hkr',3,'10',0,{tag:'C1',extra:true}),I('oblique',3,'10/side',60,{tag:'C2',extra:true}),I('fly',2,'10',60,{extra:true})],
  '0lowerA':[I('hacksquat',2,'10',120),I('hipthrust',3,'12',180,{target:65}),I('legext',2,'12–15',60),I('abd',2,'15–20',60),I('legraise',3,'10',60,{extra:true})],
+ 'w2lowerA':[I('legpress',4,'10–12',120,{coach:true,target:40,tt:'40–45 kg (last time 30 × 18)'}),I('hipthrust',3,'12',180,{coach:true,target:65,tt:'65 kg (last time 60 × 15)'}),I('legext',2,'12–15',60,{coach:true,target:25,tt:'25 kg'}),I('abd',2,'20',60,{coach:true,target:45,tt:'45 kg (last time 35 × 24)'})],
+ 'w2upperA':[I('csrow',4,'12',0,{tag:'A1',coach:true,target:10,tt:'10 kg dumbbells'}),I('inclinedb',3,'10',90,{tag:'A2',coach:true,target:8,tt:'8 kg dumbbells'}),I('pulldown',3,'10–12',0,{tag:'B1',coach:true,target:35,tt:'35 kg (30 felt easy, 40 too heavy)'}),I('fly',2,'12–15',60,{tag:'B2',coach:true,target:15,tt:'15 kg on the pec deck'}),I('hkr',3,'10',60,{extra:true})],
+ 'w2lowerB':[I('hipthrust',4,'10',180,{coach:true,target:65,tt:'65–70 kg'}),I('rdl',3,'10–12',90,{coach:true,target:10,tt:'2 × 10–12 kg to start'}),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('hkr',3,'10',60)],
+ 'w2upperB':[I('pulldown',4,'10–12',0,{tag:'A1',coach:true,target:35,tt:'35 kg'}),I('cablerow',3,'10–12',90,{tag:'A2',coach:true,target:25,tt:'try 25 kg, a weight you could do ~14 times'}),I('reardelt',2,'12–15',0,{tag:'B1',coach:true,target:3,tt:'light: 3–4 kg or the lowest setting'}),I('abd',2,'20',60,{tag:'B2',coach:true,target:45,tt:'45 kg'}),I('hkr',3,'10',60)],
  '1lowerA':[I('legpress',3,'10–12',120,{first:true,start:'Start light: a weight you could do 13–15 times'}),I('hipthrust',3,'12',180,{target:65}),I('legext',2,'12–15',60,{target:25}),I('abd',2,'15–20',60,{target:40})],
  '1upperA':[I('csrow',3,'10–12',0,{tag:'A1',first:true}),I('chestpress',3,'10–12',90,{tag:'A2'}),I('pulldown',3,'10–12',0,{tag:'B1'}),I('fly',2,'12–15',60,{tag:'B2'})],
  '1lowerB':[I('hipthrust',3,'10',180,{target:70,first:true}),I('rdl',3,'10–12',90),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('hkr',2,'10–12',60)],
@@ -536,7 +542,7 @@ const OPTIONAL={'2026-12-24':'Christmas Eve','2026-12-31':"New Year's Eve"};
 const SESSIONS=[];
 WEEKS.forEach(w=>DAYPLAN.forEach(d=>{
   const date=addDays(w.start,d.off);const first=(w.n===1&&d.off===0);
-  SESSIONS.push({date,week:w,tpl:d.tpl,key:first?'0lowerA':w.block.n+d.tpl,time:first?'12:00–12:45':d.time,optional:OPTIONAL[date]||null});
+  SESSIONS.push({date,week:w,tpl:d.tpl,key:first?'0lowerA':TPL_ITEMS['w'+w.n+d.tpl]?'w'+w.n+d.tpl:w.block.n+d.tpl,time:first?'12:00–12:45':d.time,optional:OPTIONAL[date]||null});
 }));
 /* one-off extra sessions (not part of the 64) */
 const EXTRA=[{date:'2026-11-07',tpl:'fullQ',key:'xfullQ',time:'12:00–12:25',optional:'Extra · easy 4/10',note:'Quick and easy today: 22 h of work in 2 days. Keep 3–4 reps in the tank, no failure.'}];
@@ -627,6 +633,7 @@ function suggestion(it,s){
   if(e.bw)return {kg:null,text:it.ex==='pushup'?'Use the lowest incline where every rep is clean. Log the height in notes.':'Bodyweight. Clean reps, no swinging.'};
   const last=h[0]?maxKg(h[0].sets):null;
   if(w.deload){const base=last!=null?last:it.target;if(base==null)return {kg:null,text:'Deload: go about 20% lighter than last week.'};const kg=r25(base*0.8);return {kg,text:'Deload: about '+kg+' kg (80% of '+base+' kg).'}}
+  if(it.coach&&it.target!=null)return {kg:it.target,text:'Coach target: '+(it.tt||it.target+' kg')+'.'};
   if(w.n===1&&it.target!=null&&(last==null||last<it.target))return {kg:it.target,text:'Coach target: '+it.target+' kg.'};
   if(last==null)return {kg:null,text:it.start||'New exercise: pick a weight you could lift 12–14 times, then do the prescribed reps.'};
   if(w.wib===1&&w.n>1&&parseInt(it.reps,10)<10&&w.block.n>1){const kg=last+2.5;return {kg,text:'New block, fewer reps: try about '+kg+' kg and keep 2 reps in the tank.'}}
@@ -1478,4 +1485,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794083850"><script>(()=>{const B='1794083850';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794121772"><script>(()=>{const B='1794121772';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
