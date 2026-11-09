@@ -1343,7 +1343,7 @@ function renderWork(){
     '<section class="card stack" id="wtot"></section><section class="card stack" id="wchart"></section></div>';
   const tot=()=>{const mt=workTotals(d=>d.startsWith(WMON)),all=workTotals();
     $('#wtot').innerHTML='<h3>'+mname+'</h3><div class="wk-tot"><div><span class="small muted">Baking</span><b>'+fh(mt.bake)+' h</b><span class="small">'+feur(mt.bake*RATE.bake)+'</span></div><div><span class="small muted">Selling</span><b>'+fh(mt.sell)+' h</b><span class="small">'+feur(mt.sell*RATE.sell)+'</span></div><div><span class="small muted">Total · '+mt.days+' days</span><b>'+fh(mt.bake+mt.sell)+' h</b><span class="small"><b style="display:inline;font-size:15px">'+feur(mt.eur)+'</b></span></div></div>'+
-      '<div class="spread" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Earned so far</b> <span class="small muted">· all months · '+all.days+' days · '+fh(all.bake+all.sell)+' h</span></span><b class="mono" style="font-size:20px">'+feur(all.eur)+'</b></div>'};
+      '<div class="spread" style="border-top:1px solid var(--line);padding-top:10px"><span><b>Earned so far</b> <span class="small muted">· '+mname+' · '+mt.days+' days · '+fh(mt.bake+mt.sell)+' h</span></span><b class="mono" style="font-size:20px">'+feur(mt.eur)+'</b></div>'};
   const chart=()=>{const now=TODAY.slice(0,7),[cy,cm]=now.split('-').map(Number),ms=[];
     for(let k=5;k>=0;k--){const dt=new Date(Date.UTC(cy,cm-1-k,1)),key=dt.toISOString().slice(0,7),t=workTotals(d=>d.startsWith(key));
       ms.push({key,lab:dt.toLocaleDateString('en-GB',{month:'short',timeZone:'UTC'}),b:t.bake*RATE.bake,s:t.sell*RATE.sell,eur:t.eur})}
@@ -1484,4 +1484,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794253548"><script>(()=>{const B='1794253548';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794261058"><script>(()=>{const B='1794261058';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
