@@ -502,6 +502,7 @@ const EX={
  cablerow:{name:'Cable row',easier:'Lighter',harder:'Pause at the torso',cue:"Don't lean back to move the weight"},
  oblique:{name:'Oblique leg raise',sub:'hanging, knees to each side',bw:true,easier:'Lying, knees bent',harder:'Straighter legs',cue:'Slow, no swinging'},
  inclinedb:{name:'Incline dumbbell press',easier:'6 kg',harder:'3 s lowering',cue:'Shoulder blades pinned'},
+ kickback:{name:'Glute kickback',sub:'standing, cable',easier:'Bodyweight kickback',harder:'2 s squeeze at the top',cue:'Hold the machine, hips square, don\'t arch your back'},
  reardelt:{name:'Rear delt fly',easier:'Lighter',harder:'Pause 1 s at the top',cue:'Lead with the elbows, not the hands'}
 };
 const I=(ex,sets,reps,rest,o)=>Object.assign({ex,sets,reps,rest},o||{});
@@ -516,25 +517,25 @@ const META={lowerA:{name:'Lower A',kind:'lower',run:false},upperA:{name:'Upper A
 const TPL_ITEMS={
  'xfullQ':[I('legpress',2,'12',90,{tag:'A1',first:true,start:'Light: a weight you could do 15+ times'}),I('pulldown',2,'12',90,{tag:'A2',target:30}),I('abd',2,'20',60,{tag:'B1',target:30,start:'30–40 kg'}),I('hkr',3,'10',0,{tag:'C1',extra:true}),I('oblique',3,'10/side',60,{tag:'C2',extra:true}),I('fly',2,'10',60,{extra:true})],
  '0lowerA':[I('hacksquat',2,'10',120),I('hipthrust',3,'12',180,{target:65}),I('legext',2,'12–15',60),I('abd',2,'15–20',60),I('legraise',3,'10',60,{extra:true})],
- 'w2lowerA':[I('legpress',4,'10–12',120,{coach:true,target:40,tt:'40–45 kg (last time 30 × 18)'}),I('hipthrust',3,'12',180,{coach:true,target:65,tt:'65 kg (last time 60 × 15)'}),I('legext',2,'12–15',60,{coach:true,target:25,tt:'25 kg'}),I('abd',2,'20',60,{coach:true,target:45,tt:'45 kg (last time 35 × 24)'})],
+ 'w2lowerA':[I('legpress',4,'10–12',120,{coach:true,target:40,tt:'40–45 kg (last time 30 × 18)'}),I('kickback',3,'12/leg',90,{coach:true,target:10,tt:'10–15 kg'}),I('legext',2,'12–15',60,{coach:true,target:25,tt:'25 kg'}),I('abd',2,'20',60,{coach:true,target:45,tt:'45 kg (last time 35 × 24)'})],
  'w2upperA':[I('csrow',4,'12',0,{tag:'A1',coach:true,target:10,tt:'10 kg dumbbells'}),I('inclinedb',3,'10',90,{tag:'A2',coach:true,target:8,tt:'8 kg dumbbells'}),I('pulldown',3,'10–12',0,{tag:'B1',coach:true,target:35,tt:'35 kg (30 felt easy, 40 too heavy)'}),I('fly',2,'12–15',60,{tag:'B2',coach:true,target:15,tt:'15 kg on the pec deck'}),I('hkr',3,'10',60,{extra:true})],
- 'w2lowerB':[I('hipthrust',4,'10',180,{coach:true,target:65,tt:'65–70 kg'}),I('rdl',3,'10–12',90,{coach:true,target:10,tt:'2 × 10–12 kg to start'}),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('hkr',3,'10',60)],
+ 'w2lowerB':[I('rdl',4,'10–12',120,{coach:true,target:10,tt:'2 × 10–12 kg dumbbells'}),I('kickback',3,'10/leg',90,{coach:true,target:12.5,tt:'12.5–17.5 kg'}),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('hkr',3,'10',60)],
  'w2upperB':[I('pulldown',4,'10–12',0,{tag:'A1',coach:true,target:35,tt:'35 kg'}),I('cablerow',3,'10–12',90,{tag:'A2',coach:true,target:25,tt:'try 25 kg, a weight you could do ~14 times'}),I('reardelt',2,'12–15',0,{tag:'B1',coach:true,target:3,tt:'light: 3–4 kg or the lowest setting'}),I('abd',2,'20',60,{tag:'B2',coach:true,target:45,tt:'45 kg'}),I('hkr',3,'10',60)],
- '1lowerA':[I('legpress',3,'10–12',120,{first:true,start:'Start light: a weight you could do 13–15 times'}),I('hipthrust',3,'12',180,{target:65}),I('legext',2,'12–15',60,{target:25}),I('abd',2,'15–20',60,{target:40})],
+ '1lowerA':[I('legpress',3,'10–12',120,{first:true,start:'Start light: a weight you could do 13–15 times'}),I('kickback',3,'12/leg',90),I('legext',2,'12–15',60,{target:25}),I('abd',2,'15–20',60,{target:40})],
  '1upperA':[I('csrow',3,'10–12',0,{tag:'A1',first:true}),I('chestpress',3,'10–12',90,{tag:'A2'}),I('pulldown',3,'10–12',0,{tag:'B1'}),I('fly',2,'12–15',60,{tag:'B2'})],
- '1lowerB':[I('hipthrust',3,'10',180,{target:70,first:true}),I('rdl',3,'10–12',90),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('hkr',2,'10–12',60)],
+ '1lowerB':[I('rdl',3,'10–12',120,{first:true}),I('kickback',3,'10/leg',90),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('hkr',2,'10–12',60)],
  '1upperB':[I('pulldown',3,'10–12',0,{tag:'A1',first:true}),I('cablerow',3,'10–12',90,{tag:'A2'}),I('reardelt',2,'12–15',0,{tag:'B1'}),I('abd',2,'20',60,{tag:'B2'}),I('hkr',2,'10–12',60)],
- '2lowerA':[I('legpress',4,'8–10',120),I('hipthrust',3,'10',180),I('legext',2,'12–15',60),I('abd',2,'15–20',60),I('calf',2,'12–15',60,{nw:true})],
+ '2lowerA':[I('legpress',4,'8–10',120),I('kickback',3,'10/leg',90),I('legext',2,'12–15',60),I('abd',2,'15–20',60),I('calf',2,'12–15',60,{nw:true})],
  '2upperA':[I('csrow',4,'8–10',0,{tag:'A1'}),I('chestpress',3,'8–10',90,{tag:'A2'}),I('pulldown',3,'10–12',0,{tag:'B1'}),I('fly',2,'12–15',60,{tag:'B2'}),I('inclinepush',2,'6–10',60,{nw:true})],
- '2lowerB':[I('hipthrust',4,'8–10',180),I('rdl',3,'8–10',90),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('balance',2,'30 s/leg',30,{nw:true}),I('hkr',2,'10–12',60)],
+ '2lowerB':[I('rdl',4,'8–10',120,{first:true}),I('kickback',3,'8/leg',90),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('balance',2,'30 s/leg',30,{nw:true}),I('hkr',2,'10–12',60)],
  '2upperB':[I('pulldown',4,'8–10',0,{tag:'A1'}),I('cablerow',3,'10–12',90,{tag:'A2'}),I('reardelt',2,'12–15',0,{tag:'B1'}),I('abd',2,'20',60,{tag:'B2'}),I('hkr',2,'10–12',60)],
- '3lowerA':[I('goblet',3,'8–10',120,{nw:true}),I('legpress',3,'10–12',120),I('hipthrust',3,'8–10',180),I('legext',2,'12',60),I('calf',3,'12',60)],
+ '3lowerA':[I('goblet',3,'8–10',120,{nw:true}),I('legpress',3,'10–12',120),I('kickback',3,'8/leg',90),I('legext',2,'12',60),I('calf',3,'12',60)],
  '3upperA':[I('csrow',4,'8–10',0,{tag:'A1'}),I('chestpress',3,'8–10',90,{tag:'A2'}),I('pulldown',3,'8–10',0,{tag:'B1'}),I('pushup',3,'3–6',60,{tag:'B2',nw:true}),I('fly',2,'12–15',60)],
- '3lowerB':[I('hipthrust',4,'8',180),I('rdl',3,'8–10',90),I('stepup',2,'8/leg',60,{nw:true}),I('backext',2,'12–15',60),I('balance',2,'30 s/leg',30),I('hkr',2,'12',60)],
+ '3lowerB':[I('rdl',4,'8–10',120,{first:true}),I('kickback',3,'8/leg',90),I('stepup',2,'8/leg',60,{nw:true}),I('backext',2,'12–15',60),I('balance',2,'30 s/leg',30),I('hkr',2,'12',60)],
  '3upperB':[I('pulldown',4,'8–10',0,{tag:'A1'}),I('cablerow',3,'8–10',90,{tag:'A2'}),I('dbpress',3,'10',90,{nw:true}),I('reardelt',2,'12–15',0,{tag:'B1'}),I('plank',2,'30–45 s',0,{tag:'B2',nw:true})],
- '4lowerA':[I('legpress',4,'6–8',150),I('hipthrust',4,'6–8',180),I('goblet',3,'10',90),I('legext',2,'12',60),I('calf',3,'12',60)],
+ '4lowerA':[I('legpress',4,'6–8',150),I('kickback',3,'6/leg',90),I('goblet',3,'10',90),I('legext',2,'12',60),I('calf',3,'12',60)],
  '4upperA':[I('csrow',4,'6–8',0,{tag:'A1'}),I('chestpress',4,'6–8',120,{tag:'A2'}),I('pulldown',3,'8',90),I('pushup',3,'5–8',60),I('fly',2,'12',60)],
- '4lowerB':[I('hipthrust',4,'6–8',180),I('rdl',4,'6–8',120),I('stepup',3,'8/leg',60),I('backext',2,'15',60),I('hkr',3,'10',60)],
+ '4lowerB':[I('rdl',4,'6–8',120,{first:true}),I('kickback',3,'6/leg',90),I('stepup',3,'8/leg',60),I('backext',2,'15',60),I('hkr',3,'10',60)],
  '4upperB':[I('pulldown',4,'6–8',0,{tag:'A1'}),I('cablerow',4,'8',120,{tag:'A2'}),I('dbpress',3,'8–10',90),I('reardelt',2,'15',0,{tag:'B1'}),I('plank',2,'45–60 s',0,{tag:'B2'})]
 };
 const DAYPLAN=[{off:0,tpl:'lowerA',time:'18:30–19:15'},{off:1,tpl:'upperA',time:'19:00–19:55'},{off:2,tpl:'lowerB',time:'09:00–09:45'},{off:3,tpl:'upperB',time:'13:00–13:55'}];
@@ -670,7 +671,7 @@ const ICONS={
  star:'<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z" stroke="#282828" stroke-width="2" fill="none" stroke-linejoin="round"/>'
 };
 const SKILLS=[
- {id:'hipthrust',name:'Hip thrust',ic:'hip',c:'--pink',why:'Unlocks from your logs: a set of 8+ reps at that weight.',auto:{ex:'hipthrust',levels:[60,70,80,90,100],minReps:8}},
+ {id:'kickback',name:'Glute kickback',ic:'hip',c:'--pink',why:'Unlocks from your logs: a set of 8+ reps per leg at that weight.',auto:{ex:'kickback',levels:[15,20,25,30,35],minReps:8}},
  {id:'pushup',name:'Push-up',ic:'push',c:'--sky',why:'From the wall to the floor. Tick each one the first time you do it cleanly.',steps:['10 wall push-ups','10 incline push-ups (bench)','10 low-incline push-ups (step)','First floor push-up','5 floor push-ups','10 floor push-ups']},
  {id:'pullup',name:'Pull-up',ic:'pull',c:'--twilight',why:'The long game. Hanging grip, then negatives, then the real thing.',steps:['Dead hang 15 s','Dead hang 30 s','8 scapular pull-ups','Lat pulldown at half your body weight × 8','3 slow negative pull-ups','First full pull-up']},
  {id:'legpress',name:'Leg press',ic:'leg',c:'--mint',why:'Unlocks from your logs: a set of 8+ reps at that weight.',auto:{ex:'legpress',levels:[40,60,80,100,120],minReps:8}},
@@ -691,9 +692,9 @@ function skillState(sk){
 }
 function skillCount(){let g=0,t=0;SKILLS.forEach(sk=>skillState(sk).forEach(x=>{t++;if(x.date)g++}));return {g,t}}
 function badges(){
-  const t=totals(),st=streaks(),ht=prOf('hipthrust').kg||0,sc=skillCount();
+  const t=totals(),st=streaks(),ht=prOf('kickback').kg||0,sc=skillCount();
   const blockDone=n=>SESSIONS.filter(s=>s.week.block.n===n&&!s.optional).every(isComplete);
-  return [['First session back',t.done>=1],['3 in a row',st.best>=3],['Block 1 done',blockDone(1)],['10 sessions',t.done>=10],['Hip thrust 70 kg',ht>=70],
+  return [['First session back',t.done>=1],['3 in a row',st.best>=3],['Block 1 done',blockDone(1)],['10 sessions',t.done>=10],['Kickback 20 kg',ht>=20],
     ['5 sessions',t.done>=5],['10 skills unlocked',sc.g>=10],['Block 2 done',blockDone(2)],['Halfway · 32 sessions',t.done>=32],['250 sets',t.sets>=250],
     ['Block 3 done',blockDone(3)],['10 tonnes lifted',t.vol>=10000],['Block 4 done',blockDone(4)],['All 4 months',t.done>=62]];
 }
@@ -856,7 +857,7 @@ function renderPlan(){
   hb+='<section class="card stack"><h2>House rules</h2><div class="small" style="display:grid;gap:6px">'+
     '<div><b>Rules:</b> no sets to failure and no drop sets for the whole 4 months. No hard session 48–72 h before a blood test. Extra water, sunscreen outdoors.</div>'+
     '<div><b>Sleep decides the day:</b> under 4 h no workout, 4–5 h recovery walk, 5–6 h go 40% lighter, 7 h+ full session.</div>'+
-    '<div><b>Hip thrust:</b> 3 min rest between sets, machine or Smith machine.</div>'+
+    '<div><b>Glute kickback:</b> standing, on the cable. Hold the machine, hips square, don\'t arch.</div>'+
     '<div><b>Joints:</b> no running in the plan. If a joint hurts, skip that exercise and tell your doctor.</div>'+
     '<div><b>Ankles:</b> ankle prep every warm-up, no walking lunges. Balance and calf work start in block 2.</div>'+
     '<div><b>Progression:</b> add 2.5 kg after two clean sessions at the same weight. A missed set keeps the weight; two misses drop it 10%.</div>'+
@@ -1246,13 +1247,13 @@ function renderCalendar(){
 /* ====== new year ====== */
 let nyAnim=null;
 function renderNewYear(){
-  const t=totals('2026-12-31'),st=streaks(),sc=skillCount(),ht=prOf('hipthrust',8),before=TODAY<'2027-01-01';
+  const t=totals('2026-12-31'),st=streaks(),sc=skillCount(),ht=prOf('kickback',8),before=TODAY<'2027-01-01';
   const ss=SESSIONS.filter(s=>s.date<='2026-12-31'),moods=ss.map(s=>S.sessions[s.date]).filter(x=>x&&x.moodBefore!=null&&x.moodAfter!=null);
   const lift=moods.length?(moods.reduce((a,x)=>a+(x.moodAfter-x.moodBefore),0)/moods.length):null;
   const next=SESSIONS.find(s=>s.date>='2027-01-01');
   const tiles=[
     ['var(--lav)',t.done,'sessions in 2026'],['var(--twilight)',t.sets,'sets ticked off'],['var(--mint)',(t.vol/1000).toFixed(1)+' t','lifted in total'],
-    ['var(--cake)',st.best,'best streak in a row'],['#D6D8F7',sc.g,'skills unlocked'],['#E4E7EE',ht.kg!=null?ht.kg+' kg':'–','best hip thrust (8+ reps)']
+    ['var(--cake)',st.best,'best streak in a row'],['#D6D8F7',sc.g,'skills unlocked'],['#E4E7EE',ht.kg!=null?ht.kg+' kg':'–','best glute kickback (8+ reps)']
   ];
   let h='<div class="stack"><section class="ny"><canvas id="nyfx"></canvas>'+
     (before?'<div class="pill" style="justify-self:center;background:#F3B3C8;color:#282828">Preview · unlocks on 1 Jan</div>':'')+
@@ -1483,4 +1484,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794245423"><script>(()=>{const B='1794245423';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794250035"><script>(()=>{const B='1794250035';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
