@@ -563,13 +563,11 @@ const HOLIDAYS={'2026-11-17':'State holiday','2026-12-24':'Christmas Eve','2026-
 /* sessions logged elsewhere (Hevy screenshots), merged in if that day is still empty */
 const LOGGED={};
 /* Kapkejkáreň hours from Michaelka's dochadzka.xlsx; the public build empties this (it comes from sync there) */
-const SCHOOL_DROP=['r2026-10-08|Stabilita svahu - Analytický výpočet'];
+const SCHOOL_DROP=['r2026-10-08|Stabilita svahu - Analytický výpočet','r2026-11-11|4. Kompozičná analýza riešeného územia','r2026-11-11|6. Dendrologická analýza riešeného územia','r2026-11-11|7. Analýza súčasného stavu riešeného územia','r2026-11-11|8. Komplexný návrh riešeného územia'];
 const REMINDERS=[
  ['2026-11-11','Prezentácia','Anglický jazyk'],
- ['2026-11-11','4. Kompozičná analýza riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-11-11','6. Dendrologická analýza riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-11-11','7. Analýza súčasného stavu riešeného územia','Ateliér z krajinného plánovania 3'],
- ['2026-11-11','8. Komplexný návrh riešeného územia','Ateliér z krajinného plánovania 3'],
+ ['2026-11-11','4. Kompozičná analýza riešeného územia\n6. Dendrologická analýza riešeného územia\n7. Analýza súčasného stavu riešeného územia\n8. Komplexný návrh riešeného územia','Ateliér z krajinného plánovania 3'],
+ ['2026-11-18','Prezentácia','Ateliér z krajinného plánovania 3'],
  ['2026-11-19','Stabilita svahu - Analytický výpočet',''],
  ['2026-11-12','Prezentácia · 9:15','Ekológia']
 ];
@@ -1138,7 +1136,7 @@ function dayEvents(date){
   const hol=CAL_EVENTS.find(e=>e[0]===date&&e[3]==='holiday');
   if(hol)evs.unshift({t:'all day',n:hol[2],k:'holiday'});else if(HOLIDAYS[date])evs.unshift({t:'all day',n:HOLIDAYS[date],k:'holiday'});
   predictedPeriods(date,date).forEach(p=>{if(date>=p[0]&&date<=p[1])evs.push({t:'',n:p[2],k:'cycle'})});
-  schoolList().filter(r=>r.d===date).forEach(r=>evs.unshift({t:'due',n:r.t+(r.s?' · '+r.s:''),k:'due'}));
+  schoolList().filter(r=>r.d===date).forEach(r=>evs.unshift({t:'due',n:(r.s?r.s+': ':'')+String(r.t).split('\n').join(', '),k:'due'}));
   if(d>=4&&!s)evs.push({t:'all day',n:'No gym · 7,000+ steps',k:'off'});
   return evs;
 }
@@ -1148,10 +1146,10 @@ let SCHADD=false;
 function remindersHTML(){
   const list=schoolList(),late=list.filter(r=>r.d<TODAY).length;
   const box=r=>{const n=dayDiff(TODAY,r.d),dd=new Date(r.d+'T00:00:00Z'),when=n<-1?(-n)+' days late':n===-1?'1 day late':n===0?'today':n===1?'tomorrow':'in '+n+' days';
-    return '<div class="remw"><div class="remdone">✓ Done</div><div class="rem'+(n<0?' late':n<=1?' soon':'')+'" data-sid="'+esc(r.id)+'"><div class="rdate"><b>'+dd.getUTCDate()+'</b><span>'+MONTHS[dd.getUTCMonth()].slice(0,3)+'</span></div><div class="rbody"><b>'+esc(r.t)+'</b><span>'+esc(r.s||'')+'</span></div><span class="rwhen">'+when+'</span></div></div>'};
+    return '<div class="remw"><div class="remdone">✓ Done</div><div class="rem'+(n<0?' late':n<=1?' soon':'')+'" data-sid="'+esc(r.id)+'"><div class="rdate"><b>'+dd.getUTCDate()+'</b><span>'+MONTHS[dd.getUTCMonth()].slice(0,3)+'</span></div><div class="rbody">'+(r.s?'<b>'+esc(r.s)+'</b>'+String(r.t).split('\n').map(x=>'<span>'+esc(x)+'</span>').join(''):'<b>'+esc(r.t)+'</b>')+'</div><span class="rwhen">'+when+'</span></div></div>'};
   return '<section class="card stack side-rem"><div class="spread"><h3>School</h3><span class="small muted">'+(late?'<b class="latecount">'+late+' late</b> · ':'')+list.length+' open</span></div>'+
     (list.length?list.map(box).join('')+'<div class="small muted">Swipe left when it’s done.</div>':'<div class="small muted">Nothing due.</div>')+
-    (SCHADD?'<form id="sform" class="sform"><input id="sdate" class="inp" type="date" required value="'+TODAY+'"><input id="stitle" class="inp" placeholder="What (e.g. Prezentácia 9:15)" autocomplete="off" required><input id="ssub" class="inp" placeholder="Subject" autocomplete="off"><div class="sbtns"><button type="button" class="btn sm" id="scancel">Cancel</button><button class="btn primary sm">Add</button></div></form>':'<button type="button" class="btn sm" id="sopen">+ Add to School</button>')+'</section>';
+    (SCHADD?'<form id="sform" class="sform"><input id="sdate" class="inp" type="date" required value="'+TODAY+'"><input id="ssub" class="inp" placeholder="Subject (shown on top)" autocomplete="off"><input id="stitle" class="inp" placeholder="What (e.g. Prezentácia 9:15)" autocomplete="off" required><div class="sbtns"><button type="button" class="btn sm" id="scancel">Cancel</button><button class="btn primary sm">Add</button></div></form>':'<button type="button" class="btn sm" id="sopen">+ Add to School</button>')+'</section>';
 }
 function bindSchool(root){
   const q=sel=>root.querySelector(sel);
@@ -1485,4 +1483,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794121772"><script>(()=>{const B='1794121772';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794245423"><script>(()=>{const B='1794245423';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
