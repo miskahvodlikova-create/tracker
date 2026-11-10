@@ -339,6 +339,17 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:30;width:100%;heigh
   .gridT{display:grid;gap:22px;align-items:start}
   .stickycol{position:sticky;top:16px}
 }
+@media (min-width:561px) and (max-width:1079px){
+  .wrap{max-width:900px}
+  .tabs{grid-template-columns:repeat(7,1fr);gap:6px}
+  .tab{padding-inline:4px;font-size:13px;white-space:nowrap}
+}
+@media (min-width:1080px) and (max-width:1399px){
+  .dgrid{grid-template-columns:minmax(0,1fr) minmax(280px,320px);grid-template-areas:"view left" "view month";row-gap:14px}
+  .dgrid>#view{grid-area:view}.dgrid>#col-left{grid-area:left}.dgrid>#col-month{grid-area:month}
+  .dgrid>.stickycol{position:static}
+  .wrap{padding-left:20px;padding-right:20px}
+}
 @media (min-width:1700px){.gridT{grid-template-columns:minmax(260px,320px) minmax(0,1fr)}}
 .wk-row{display:grid;grid-template-columns:44px repeat(4,minmax(0,1fr)) 64px 28px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
 .wk-row.head{font-size:11px;font-weight:800;color:var(--muted);border-bottom:2px solid var(--line);position:sticky;top:0;background:var(--surface);z-index:1}
@@ -1485,4 +1496,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794313718"><script>(()=>{const B='1794313718';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794325701"><script>(()=>{const B='1794325701';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
