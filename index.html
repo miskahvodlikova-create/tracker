@@ -503,6 +503,7 @@ const EX={
  oblique:{name:'Oblique leg raise',sub:'hanging, knees to each side',bw:true,easier:'Lying, knees bent',harder:'Straighter legs',cue:'Slow, no swinging'},
  inclinedb:{name:'Incline dumbbell press',easier:'6 kg',harder:'3 s lowering',cue:'Shoulder blades pinned'},
  kickback:{name:'Glute kickback',sub:'standing, cable',easier:'Bodyweight kickback',harder:'2 s squeeze at the top',cue:'Hold the machine, hips square, don\'t arch your back'},
+ facepull:{name:'Face pull',sub:'cable, rope',easier:'Lighter',harder:'2 s hold at the face',cue:'Pull to your forehead, elbows high'},
  reardelt:{name:'Rear delt fly',easier:'Lighter',harder:'Pause 1 s at the top',cue:'Lead with the elbows, not the hands'}
 };
 const I=(ex,sets,reps,rest,o)=>Object.assign({ex,sets,reps,rest},o||{});
@@ -518,7 +519,7 @@ const TPL_ITEMS={
  'xfullQ':[I('legpress',2,'12',90,{tag:'A1',first:true,start:'Light: a weight you could do 15+ times'}),I('pulldown',2,'12',90,{tag:'A2',target:30}),I('abd',2,'20',60,{tag:'B1',target:30,start:'30–40 kg'}),I('hkr',3,'10',0,{tag:'C1',extra:true}),I('oblique',3,'10/side',60,{tag:'C2',extra:true}),I('fly',2,'10',60,{extra:true})],
  '0lowerA':[I('hacksquat',2,'10',120),I('hipthrust',3,'12',180,{target:65}),I('legext',2,'12–15',60),I('abd',2,'15–20',60),I('legraise',3,'10',60,{extra:true})],
  'w2lowerA':[I('legpress',4,'10–12',120,{coach:true,target:40,tt:'40–45 kg (last time 30 × 18)'}),I('kickback',3,'12/leg',90,{coach:true,target:10,tt:'10–15 kg'}),I('legext',2,'12–15',60,{coach:true,target:25,tt:'25 kg'}),I('abd',2,'20',60,{coach:true,target:45,tt:'45 kg (last time 35 × 24)'}),I('legraise',3,'10 + 10/side',60,{extra:true}),I('backext',3,'12–15',60,{extra:true})],
- 'w2upperA':[I('csrow',4,'12',0,{tag:'A1',coach:true,target:10,tt:'10 kg dumbbells'}),I('inclinedb',3,'10',90,{tag:'A2',coach:true,target:8,tt:'8 kg dumbbells'}),I('pulldown',3,'10–12',0,{tag:'B1',coach:true,target:35,tt:'35 kg (30 felt easy, 40 too heavy)'}),I('fly',2,'12–15',60,{tag:'B2',coach:true,target:15,tt:'15 kg on the pec deck'}),I('hkr',3,'10',60,{extra:true})],
+ 'w2upperA':[I('csrow',3,'12',0,{tag:'A1',coach:true,target:10,tt:'10 kg dumbbells'}),I('chestpress',3,'10',90,{tag:'A2',start:'Done instead of the incline dumbbell press'}),I('facepull',3,'12–15',0,{tag:'B1',start:'Done instead of the lat pulldown'}),I('fly',2,'12–15',60,{tag:'B2',coach:true,target:15,tt:'15 kg on the pec deck'}),I('legraise',1,'30',60,{extra:true}),I('hkr',1,'10',60,{extra:true})],
  'w2lowerB':[I('rdl',4,'10–12',120,{coach:true,target:10,tt:'2 × 10–12 kg dumbbells'}),I('kickback',3,'10/leg',90,{coach:true,target:12.5,tt:'12.5–17.5 kg'}),I('backext',2,'12–15',60),I('revlunge',2,'10/leg',60),I('hkr',3,'10',60)],
  'w2upperB':[I('pulldown',4,'10–12',0,{tag:'A1',coach:true,target:35,tt:'35 kg'}),I('cablerow',3,'10–12',90,{tag:'A2',coach:true,target:25,tt:'try 25 kg, a weight you could do ~14 times'}),I('reardelt',2,'12–15',0,{tag:'B1',coach:true,target:3,tt:'light: 3–4 kg or the lowest setting'}),I('abd',2,'20',60,{tag:'B2',coach:true,target:45,tt:'45 kg'}),I('hkr',3,'10',60)],
  '1lowerA':[I('legpress',3,'10–12',120,{first:true,start:'Start light: a weight you could do 13–15 times'}),I('kickback',3,'12/leg',90),I('legext',2,'12–15',60,{target:25}),I('abd',2,'15–20',60,{target:40})],
@@ -1484,4 +1485,4 @@ window.__trk={get S(){return S},save:()=>save()};
 </script>
 
 <script>if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
-<meta name="tracker-build" content="1794261058"><script>(()=>{const B='1794261058';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
+<meta name="tracker-build" content="1794313718"><script>(()=>{const B='1794313718';let busy=0;const chk=()=>{if(busy||!navigator.onLine)return;busy=1;fetch('./?v='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(t=>{const m=t.match(/tracker-build" content="(\d+)/);if(m&&m[1]>B)location.replace('./?v='+m[1])}).catch(()=>{}).finally(()=>busy=0)};addEventListener('load',()=>setTimeout(chk,1500));document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()})})();</script>
